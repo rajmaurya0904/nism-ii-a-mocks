@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NISM II-A Mock Exams</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap">
@@ -107,7 +108,7 @@ button:focus-visible,.opt:focus-visible{outline:2px solid var(--gold);outline-of
 .qhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
 .qno{font-family:var(--f-mono);font-weight:700;color:var(--plum)}
 .chip{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--plum-soft);color:var(--plum);font-weight:600}
-.qtext{font-size:19px;line-height:1.45;margin:14px 0 18px;font-weight:600;max-width:70ch}
+.qtext{font-size:19px;line-height:1.45;margin:14px 0 18px;font-weight:600;max-width:70ch;white-space:pre-line}
 .opts{display:grid;gap:10px}
 .opt{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;background:var(--bg)}
 .opt:hover{border-color:var(--plum-2)}
@@ -169,7 +170,7 @@ table.ch tr:last-child td{border-bottom:0}
 .filters button[aria-pressed="true"]{background:var(--plum);border-color:var(--plum);color:var(--surface)}
 .rv{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px}
 .rv.ok{border-left-color:var(--good)} .rv.no{border-left-color:var(--bad)} .rv.skip{border-left-color:var(--muted)}
-.rv .q{font-weight:600;margin:6px 0 8px}
+.rv .q{font-weight:600;margin:6px 0 8px;white-space:pre-line}
 .rv .ans{font-size:14px;display:grid;gap:2px}
 .rv .ans .y.bad{color:var(--bad)} .rv .ans .c{color:var(--good)}
 .rv .e{font-size:13.5px;color:var(--muted);margin-top:6px}
@@ -184,16 +185,23 @@ table.ch tr:last-child td{border-bottom:0}
 @media (max-width:420px){.qtext{font-size:17px}.qcard{padding:16px}.bubbles{gap:4px}}
 @media (prefers-reduced-motion:no-preference){.opt,.card,.btn{transition:border-color .15s,background-color .15s}}
 </style>
-</head>
-<body>
-
 
 <div id="app"></div>
 
 <script>
 const BANK=[];let _id=0;
 function Q(ch,q,a,w,e){BANK.push({ch,q,a,w,e,id:_id++})}
-function T(ch,q,v,e){BANK.push({ch,q:q+" State whether True or False.",a:v?"True":"False",w:[v?"False":"True"],e,id:_id++})}
+function T(ch,q,v,e){BANK.push({ch,q:q+" State whether True or False.",a:v?"True":"False",w:[v?"False":"True"],e,id:_id++,tf:1})}
+function R(i,s){const b=BANK[i];b.q=b.tf?s+" State whether True or False.":s}
+function X(i,a,w){if(a)BANK[i].a=a;if(w)BANK[i].w=w}
+function H(ch,q,a,w,e){BANK.push({ch,q,a,w,e,id:_id++,hard:1})}
+const SOPTS=["Only I","Only II","Both I and II","Neither I nor II"];
+const AOPTS=["Both A and R are true, and R is the correct explanation of A","Both A and R are true, but R is not the correct explanation of A","A is true, but R is false","A is false, but R is true"];
+let _sw=0;
+function S2(ch,stem,s1,s2,k,e){if(k==="I"&&(_sw++%3===1)){const t=s1;s1=s2;s2=t;k="II";e=e.replace(/^(?!Both|Neither)/,"")}
+  const a={I:SOPTS[0],II:SOPTS[1],Both:SOPTS[2],Neither:SOPTS[3]}[k];
+  BANK.push({ch,q:stem+"\nI. "+s1+"\nII. "+s2,a,w:SOPTS.filter(o=>o!==a),fixed:SOPTS,e,id:_id++,hard:1})}
+function AR(ch,A,Rs,k,e){BANK.push({ch,q:"Assertion (A): "+A+"\nReason (R): "+Rs,a:AOPTS[k],w:AOPTS.filter((o,i)=>i!==k),fixed:AOPTS,e,id:_id++,hard:1})}
 // Ch 1
 Q(1,"_______ capital is for perpetuity from the point of view of the company.","Equity",["Debt","Both debt and equity","None of the above"],"Equity cannot be taken out of the firm unless it is liquidated (or bought back). Debt always has a repayment date.");
 Q(1,"Equity capital gives returns to investors in the form of:","Both dividend and capital appreciation",["Dividend only","Capital appreciation only","Fixed interest"],"Equity holders earn dividends declared by the company and gains from a rise in share price.");
@@ -878,7 +886,665 @@ Q(15,"An investor is any person or entity who:","Commits capital with the expect
 Q(15,"Etiquette in investor service is:","Conduct acceptable to investors that meets their expectations",["A legal requirement under PMLA","A SEBI fee","A type of corporate action"],"Being transparent, truthful, professional and grateful.");
 T(15,"A maker and checker concept is followed for documents processed as per RTA SOP.",true,"Part of the basic rules under SOP.");
 
-function X(i,a,w){if(a)BANK[i].a=a;if(w)BANK[i].w=w}
+// Formal exam-style rewrites of existing stems (ids 0-229)
+R(0,"From the standpoint of the issuing company, which form of capital is regarded as being available in perpetuity?");
+R(1,"The returns accruing to an investor in equity capital are realised by way of:");
+R(2,"The rate of interest that a company is required to pay on borrowed funds is principally a function of its:");
+R(3,"Debt capital, by its very nature, is invariably raised for periods not exceeding one year.");
+R(4,"Which of the following instruments exhibits characteristics of both debt and equity, and is therefore classified as a hybrid security?");
+R(5,"The liability of a holder of equity shares in a company limited by shares extends to:");
+R(6,"In the ordinary course, each equity share confers upon its holder:");
+R(7,"A company's paid-up capital of Rs. 10 crore comprises 1 crore shares of Rs. 10 each. An investor holding 10 lakh shares commands an ownership interest of:");
+R(8,"In the balance sheet of a company, both debt and equity capital are disclosed as:");
+R(9,"Funds contributed to an enterprise by its promoters and owners are termed:");
+R(10,"Transactions executed between investors in the secondary market bring about a change in the capital structure of the issuing company.");
+R(11,"The principal advantage to an issuer of raising funds through convertible debentures is that:");
+R(12,"Preference shares bear a resemblance to debt instruments chiefly because they carry:");
+R(13,"Debt is classified as short-term when its repayment falls due within:");
+R(14,"A loan is said to be secured when:");
+R(15,"The first offer of equity shares by a company to the investing public is made through a(n):");
+R(16,"Profits remaining after the discharge of all expenses, interest and statutory provisions accrue to:");
+R(17,"The credit rating of a debt instrument is assigned by a:");
+R(18,"Which category of rights enables an equity shareholder to participate in decisions concerning the management of the company?");
+R(19,"A company declares a dividend of 20 percent on shares of face value Rs. 10, which are quoted at Rs. 120 in the market. The dividend receivable per share is:");
+R(20,"Preference shareholders enjoy priority over debenture holders in respect of payment of dividend.");
+R(21,"Which of the following would be regarded as corporate actions?");
+R(22,"The issue of additional shares to existing shareholders, in proportion to their holding and without any consideration, is known as a:");
+R(23,"The supreme decision-making authority in a company is vested in the:");
+R(24,"An anti-dilution clause entitles an investor to:");
+R(25,"The gap between the price at which sellers are willing to sell and buyers are willing to buy a security is referred to as the:");
+R(26,"In the event of liquidation, the claims of equity shareholders are settled:");
+R(27,"Which of the following holds true of the face value of a share?");
+R(28,"Shares having a face value of Rs. 10 are issued at Rs. 50 each. The premium per share credited to the securities premium account is:");
+R(29,"The ceiling on the share capital that a company is authorised to issue is stipulated in its:");
+R(30,"Which of the following relationships between the components of share capital invariably holds good?");
+R(31,"A company with authorised capital of Rs. 20 crore issues shares of Rs. 10 each aggregating Rs. 10 crore at par, with Rs. 5 payable on application. Its paid-up capital immediately after allotment amounts to:");
+R(32,"Where the holder of partly paid-up shares defaults in payment of call money, the shares are liable to be:");
+R(33,"The rate of dividend declared by a company is expressed with reference to the share's:");
+R(34,"In the interest of clarity, SEBI requires listed entities to announce dividends in terms of:");
+R(35,"A dividend declared in the course of a financial year, prior to finalisation of the annual accounts, is termed:");
+R(36,"A dividend of 60 percent is declared on shares of face value Rs. 2, which trade at Rs. 80. The resultant dividend yield is:");
+R(37,"The participation of shareholders in a buyback offer is:");
+R(38,"Equity shares acquired by a company pursuant to a buyback are:");
+R(39,"A bonus issue is made out of:");
+R(40,"A bonus issue announced in the ratio 1:2 implies the allotment of:");
+R(41,"Mr. P holds 100 shares of face value Rs. 10 each. Pursuant to a sub-division, each share is split into two shares of Rs. 5 each. Post sub-division, Mr. P's position is:");
+R(42,"The consolidation of shares has the effect of:");
+R(43,"Mr. S holds 100 shares of face value Rs. 2 each. The company consolidates every 5 shares into 1 share of Rs. 10. Post consolidation, Mr. S will hold:");
+R(44,"A proposal to reduce the share capital of a company requires the approval of the shareholders by way of a(n):");
+R(45,"A company is precluded from reducing its share capital where:");
+R(46,"Preference shares in respect of which arrears of dividend accumulate and are carried forward are known as:");
+R(47,"Preference shares entitled to share in surplus profits, in a stipulated ratio, are known as:");
+R(48,"Interest on debentures is charged against profits before tax, whereas dividend on preference shares is appropriated out of profits after tax.");
+R(49,"In terms of Regulation 85 of the SEBI (ICDR) Regulations, a rights issue is required to be completed within how many working days from the date of Board approval?");
+R(50,"The indicative timeline from the closure of a rights issue to the commencement of listing and trading is:");
+R(51,"A shareholder who subscribes in full to his entitlement in a 1:1 rights issue suffers a reduction in his proportionate holding.");
+R(52,"An allotment of shares to a strategic investor at a pre-negotiated price, subject to the approval of existing shareholders, is termed a:");
+R(53,"The persons who conceive and establish a company and contribute its initial risk capital are referred to as:");
+R(54,"A company whose equity is held by its promoters and a limited number of investors is described as a:");
+R(55,"The Stewardship Code prescribed by SEBI is applicable to:");
+R(56,"The periodic interest payable on a bond is referred to as its:");
+R(57,"Other things being equal, a bond carrying a superior credit rating would offer:");
+R(58,"Bond prices and market interest rates are:");
+R(59,"Zero coupon bonds are, without exception, issued at a premium to their face value.");
+R(60,"The yield to maturity of a bond represents the return an investor would earn by holding the bond until its maturity.");
+R(61,"In Indian parlance, a debt instrument issued by the government or a public sector entity is commonly termed a:");
+R(62,"The face value of a debenture is customarily fixed at:");
+R(63,"A bond bearing an annual coupon of 12 percent is quoted at Rs. 109.50. Its current yield works out to:");
+R(64,"The discount rate at which the present value of all future cash flows of a bond equals its market price is known as the:");
+R(65,"Convertible debt instruments are best suited to issuers that are:");
+R(66,"A zero coupon bond of a very long tenor, issued at a steep discount to face value, is known as a:");
+R(67,"Bonds that pay a pre-determined coupon at fixed intervals and repay principal at maturity are also described as:");
+R(68,"Bonds whose coupon is periodically reset with reference to a specified benchmark are known as:");
+R(69,"The coupon on Inflation Indexed Bonds is linked to the:");
+R(70,"A bond under which each payment by the borrower comprises both interest and a portion of the principal is termed a(n):");
+R(71,"Securities backed by a pool of mortgages or other assets are referred to in India as:");
+R(72,"Bonds in which the coupon rate is raised at periodic intervals, keeping the interest burden low in the early years, are known as:");
+R(73,"Under a deferred interest bond, the issuer may defer payment of coupons during the initial period of:");
+R(74,"Securities issued by the Central and State Governments are free from credit or default risk.");
+R(75,"Credit Rating Agencies operating in India are regulated under the:");
+R(76,"Once assigned, a credit rating remains unaltered for the entire tenure of the instrument.");
+R(77,"Where a credit rating is provisional in nature, it is required to be:");
+R(78,"For the purpose of credit rating, an instrument is classified as long-term if its original maturity is:");
+R(79,"Long-term instruments regarded as carrying the highest degree of safety and the lowest credit risk are assigned the rating:");
+R(80,"An instrument rated 'D' is one that:");
+R(81,"A long-term rating of 'BBB' signifies:");
+R(82,"The modifiers '+' and '-' may be appended to long-term ratings falling within the categories:");
+R(83,"The highest rating assignable to a short-term debt instrument is:");
+R(84,"The suffix 'CE' appended to a rating by a Credit Rating Agency denotes:");
+R(85,"Relative to rated instruments, the yield offered on unrated bonds is generally:");
+R(86,"Commercial Paper was introduced in the Indian money market in the year:");
+R(87,"Commercial Paper may best be described as a(n):");
+R(88,"The aggregate amount of Commercial Paper that an issuer may have outstanding is restricted to:");
+R(89,"The minimum amount for which a Certificate of Deposit may be issued is:");
+R(90,"Certificates of Deposit issued by banks shall have a maturity of:");
+R(91,"Certificates of Deposit issued by financial institutions shall have a maturity of:");
+R(92,"Non-resident Indians may subscribe to Certificates of Deposit only on a:");
+R(93,"Treasury Bills are presently issued by the Government of India with maturities of:");
+R(94,"A 91-day Treasury Bill of face value Rs. 100 is issued at Rs. 98.20. The return to an investor holding it to maturity is:");
+R(95,"The money market comprises instruments having an original maturity of:");
+R(96,"Warrants are generally issued in conjunction with:");
+R(97,"At maturity, the non-convertible portion of a partly convertible debenture is:");
+R(98,"The shares underlying a Depository Receipt programme are held in custody by:");
+R(99,"Holders of Depository Receipts are not entitled to exercise which of the following rights?");
+R(100,"Under a Foreign Currency Convertible Bond, both interest and principal are payable in foreign currency.");
+R(101,"A warrant conferring the right to acquire a share at Rs. 100 would ordinarily be exercised only when:");
+R(102,"The exercise of warrants by their holders results in:");
+R(103,"Depository Receipts listed on a stock exchange in the United States are known as:");
+R(104,"Depository Receipts listed on a stock exchange outside the United States are known as:");
+R(105,"Depository Receipts issued and listed in India, with shares of a foreign company as the underlying, are known as:");
+R(106,"The conversion price of a Foreign Currency Convertible Bond is ordinarily fixed at:");
+R(107,"The issue of Foreign Currency Convertible Bonds is governed by:");
+R(108,"Exchange Traded Funds may best be described as:");
+R(109,"Units of index funds are listed and traded on stock exchanges.");
+R(110,"The value of assets held by a REIT making an initial offer shall not be less than:");
+R(111,"The minimum subscription amount in an initial or follow-on offer of REITs and InvITs lies in the range of:");
+R(112,"Infrastructure Investment Trusts registered with SEBI invest in the:");
+R(113,"Which categories of Alternative Investment Funds are permitted to be constituted only as close-ended funds?");
+R(114,"Deposits accepted by companies from the public are governed by which Section of the Companies Act, 2013?");
+R(115,"Fixed deposits accepted by companies are secured by a charge on the assets of the company.");
+R(116,"Convertible debentures are ordinarily issued on a rights basis or with the specific approval of shareholders because:");
+R(117,"A debenture of which only a portion is convertible into equity is known as a:");
+R(118,"The universe of securities in which a mutual fund scheme may invest is determined by its:");
+R(119,"The categories of expenses chargeable to a mutual fund scheme, and the limits thereon, are prescribed by:");
+R(120,"Mutual funds carry a lower degree of risk than direct investment in securities primarily on account of:");
+R(121,"The unit capital of a mutual fund scheme is arrived at by multiplying the number of units issued by the scheme's NAV.");
+R(122,"Units of open-ended mutual fund schemes are mandatorily required to be listed on a stock exchange.");
+R(123,"Mutual fund units are ordinarily issued at a face value of:");
+R(124,"Units of a new mutual fund scheme are first offered to investors by way of a(n):");
+R(125,"An investor invests Rs. 20,000 in a scheme at a price of Rs. 10.225 per unit. The number of units allotted to him is:");
+R(126,"Upon completion of its NFO, the unit capital of a close-ended scheme:");
+R(127,"The Net Asset Value of a mutual fund scheme is computed as:");
+R(128,"The NAV of equity-oriented schemes is computed up to:");
+R(129,"The NAV of index funds and of debt, liquid and money market schemes is computed up to:");
+R(130,"Save for schemes with overseas or commodity derivative exposure, the NAV of a scheme must be uploaded by:");
+R(131,"A scheme has net assets of Rs. 750 crore and unit capital of Rs. 250 crore (face value Rs. 10 per unit). Its NAV per unit is:");
+R(132,"A scheme with 100 crore units outstanding has an NAV of Rs. 15. Its net assets aggregate:");
+R(133,"Assets Under Management denote ____, whereas NAV denotes ____.");
+R(134,"Short-term deposits placed by a scheme to meet redemption or dividend obligations shall not exceed:");
+R(135,"Investors may avail of voluntary lock-in or debit freeze of their mutual fund folios through:");
+R(136,"The daily revaluation of a scheme's portfolio at prevailing market prices is known as:");
+R(137,"Units of close-ended schemes are mandatorily listed on stock exchanges so as to provide liquidity to investors.");
+R(138,"The new category of mutual fund schemes introduced in SEBI's recent re-categorisation is:");
+R(139,"The maintenance of records of all investor transactions, so as to ascertain a scheme's inflows and outflows, is the responsibility of:");
+R(140,"The apex regulatory authority for the securities market in India is the:");
+R(141,"Regulations governing the prohibition of insider trading are framed and administered by:");
+R(142,"The Investor Education and Protection Fund is credited with dividends that have remained unpaid and unclaimed for a period of at least:");
+R(143,"The protection of the interests of investors is merely a secondary objective of SEBI.");
+R(144,"SEBI is empowered to impose penalties on market participants.");
+R(145,"The Securities and Exchange Board of India was established on:");
+R(146,"SEBI derives its powers to recognise and regulate stock exchanges from the:");
+R(147,"In its capacity as manager of public debt, the primary issuance of government securities is undertaken by:");
+R(148,"The Securities Markets Code Bill, 2025 proposes to consolidate:");
+R(149,"The certificate of registration granted to a SEBI-registered intermediary is:");
+R(150,"Eligibility conditions and norms governing public issues of securities are prescribed in the:");
+R(151,"In the course of an investigation, SEBI is empowered to:");
+R(152,"Which of the following would constitute unpublished price sensitive information?");
+R(153,"Under the amended SEBI (PIT) Regulations, an insider may commence trading under a trading plan only after the expiry of a cooling-off period of:");
+R(154,"Under the amended regime, a trading plan must continue to cover a minimum trading period of twelve months.");
+R(155,"Deviation from an approved trading plan is permissible only in exceptional circumstances such as:");
+R(156,"A trading plan formulated by an insider must be submitted for approval to the:");
+R(157,"The structured digital database maintained under the PIT Regulations must be preserved for a period of not less than:");
+R(158,"The maintenance of the structured digital database recording the sharing of UPSI may be outsourced to an external agency.");
+R(159,"The structured digital database records the names of persons with whom UPSI has been shared, together with their:");
+R(160,"The SEBI regulations that define 'fraud' and prohibit fraudulent and unfair trade practices were notified in the year:");
+R(161,"The term 'fraud' is defined under which Regulation of the SEBI (PFUTP) Regulations?");
+R(162,"An act can be held to be fraudulent under the PFUTP Regulations only where it has resulted in a wrongful gain.");
+R(163,"The Investor Education and Protection Fund has been established by the:");
+R(164,"The IEPF Authority was constituted by the Government of India on:");
+R(165,"The IEPF is utilised for refunds and for the promotion of investor awareness in accordance with which section of the Companies Act, 2013?");
+R(166,"The accounts of the IEPF Authority are subjected to annual audit by the:");
+R(167,"Companies upload particulars of amounts lying unpaid and unclaimed for the preceding seven financial years in Form:");
+R(168,"The statement in Form IEPF-2 is required to be filed within what period of the date of the AGM?");
+R(169,"Shares due for transfer to the IEPF are required to be credited to the IEPF demat account within:");
+R(170,"For legal purposes, the transfer of shares by a company to the IEPF is deemed to be a:");
+R(171,"Where physical shares are transferred to the IEPF, particulars of the new certificate issued for the purpose are recorded in Form:");
+R(172,"A claimant seeking refund of shares or dividends transferred to the IEPF is required to file Form:");
+R(173,"The Nodal Officer appointed by a company for IEPF matters must be its:");
+R(174,"A change in the Nodal Officer must be intimated to the IEPF Authority within:");
+R(175,"The Special Window Facility of the IEPF Authority accords priority to claims of senior citizens aged:");
+R(176,"The responsibility for verifying the genuineness and entitlement of a claimant to the IEPF rests with:");
+R(177,"The SEBI (RTA) Regulations, 2025 have replaced the earlier categorisation of RTAs with a system of:");
+R(178,"An application for registration as an RTA is required to be made to SEBI in:");
+R(179,"The non-refundable fee payable along with an application for registration as an RTA is:");
+R(180,"The registration fee payable by an RTA at the time of grant of the certificate is:");
+R(181,"In order to keep its certificate of registration in force, an RTA is required to pay a fee of Rs. 2,70,000:");
+R(182,"An RTA is required to maintain, at all times, a minimum net worth of:");
+R(183,"The registration fee of Rs. 6 lakh is payable within what period of receipt of SEBI's intimation?");
+R(184,"An RTA is required to obtain the prior approval of SEBI in the event of a:");
+R(185,"Under the SEBI (RTA) Regulations, 2025, investor grievances are required to be redressed within:");
+R(186,"Services rendered by an RTA to unlisted companies:");
+R(187,"Existing RTAs servicing unlisted companies are required to segregate such business within:");
+R(188,"Where SEBI rejects an application for registration as an RTA, the decision is communicated within ____, and the applicant may seek reconsideration within ____.");
+R(189,"On sufficient cause being shown, SEBI may permit an RTA to remit its fees before the expiry of what period from the due date?");
+R(190,"In the event of default by an RTA in payment of the prescribed fees, SEBI may:");
+R(191,"An RTA is prohibited from acting as registrar and share transfer agent for:");
+R(192,"An RTA is required to preserve its books of account and records for a minimum period of:");
+R(193,"The Compliance Officer of an RTA is required to report any non-compliance observed by him:");
+R(194,"Disputes between an RTA and its clients are required to be referred to:");
+R(195,"The Code of Conduct for RTAs is set out in which Schedule of the SEBI (RTA) Regulations, 2025?");
+R(196,"Before processing dematerialisation of securities, an RTA is required to satisfy itself that:");
+R(197,"An RTA may reject demat or remat requests on flimsy grounds when it faces a heavy workload.");
+R(198,"An RTA is bound to comply with awards of the Ombudsman passed under the:");
+R(199,"Upon termination of its agreement with a client, an RTA must hand over all records and documents to the client within:");
+R(200,"An employee of an RTA may offer investment advice on a security through the public media only if:");
+R(201,"An RTA is answerable for the acts and omissions of its employees and agents.");
+R(202,"SEBI may appoint an inspecting authority to inspect the books and records of an RTA:");
+R(203,"SEBI may suspend or cancel the registration of an RTA only after:");
+R(204,"Under the regulatory sandbox framework, SEBI may exempt entities from the RTA Regulations for a period not exceeding:");
+R(205,"SEBI's circular on strengthening the guidelines and raising industry standards for RTAs, issuer companies and bankers to an issue was issued on:");
+R(206,"Dividend, interest and redemption instruments remaining unpaid beyond their validity period are required to be:");
+R(207,"The banker to the issue furnishes a reconciliation of paid and unpaid dividend amounts:");
+R(208,"A folio, once its holding is reduced to nil, may be re-allotted to another shareholder.");
+R(209,"A control under which a transaction processed by one person is independently verified by another is known as:");
+R(210,"Modifications to folio records by an RTA must be carried out exclusively through:");
+R(211,"The rectification of errors in folio records by an RTA requires the prior approval of:");
+R(212,"Enhanced due diligence is mandated where dividend, interest or redemption amounts have remained unpaid for a period of at least:");
+R(213,"The list of folios subjected to enhanced due diligence is shared by the RTA with the issuer company:");
+R(214,"The internal audit of an RTA is required to be conducted:");
+R(215,"An internal auditor of an RTA must possess a minimum experience in the financial sector of:");
+R(216,"An internal auditor may be appointed for a maximum tenure of ____, followed by a cooling-off period of ____.");
+R(217,"An RTA must furnish a copy of its internal audit report to the issuer company within:");
+R(218,"The observations of the internal auditor and the corrective action taken by the RTA are placed before the:");
+R(219,"An RTA is classified as a Qualified RTA if it services more than:");
+R(220,"Qualified RTAs are also designated as:");
+R(221,"The regulations that lay down requirements common to all SEBI-registered intermediaries are the:");
+R(222,"Under the SEBI (Intermediaries) Regulations, 2008, an intermediary must redress investor grievances within:");
+R(223,"The criteria for determining whether an applicant is a 'fit and proper person' are set out in which Schedule of the Intermediaries Regulations?");
+R(224,"Which of the following would render an applicant ineligible as not being 'fit and proper' under the Intermediaries Regulations?");
+R(225,"Under the Intermediaries Regulations, SEBI may undertake an inspection of the books and records of an intermediary:");
+R(226,"Under the SEBI (D&P) Regulations, 2018, a participant is required to redress investor complaints within:");
+R(227,"Under the SEBI (D&P) Regulations, a participant is required to:");
+R(228,"A participant associated with more than one depository is required to maintain its records separately for each depository.");
+R(229,"The regulator constituted to supervise the insurance sector in India is:");
+
+// Formal exam-style rewrites of existing stems (ids 230-459)
+R(230,"Registrars and Transfer Agents are recognised as intermediaries under the SEBI Act and fall within SEBI's regulatory purview.");
+R(231,"The initial equity capital of a company is ordinarily contributed by its:");
+R(232,"In making an issue of capital, a company is required to comply with the regulations framed by:");
+R(233,"The making of a public issue of shares is the exclusive preserve of companies that are already listed.");
+R(234,"Which of the following categories of issue may be undertaken only by a company whose shares are already listed?");
+R(235,"In prescribing eligibility norms for public issues, SEBI's regulations take no account of the issuer's financial performance.");
+R(236,"A buyback undertaken through the open market route via stock exchanges shall be less than what proportion of paid-up capital and free reserves?");
+R(237,"On the basis of the method of pricing, public issues of equity are classified as:");
+R(238,"A public issue of shares has the effect of:");
+R(239,"Under differential pricing in a book built issue, the discount extended to retail investors shall not exceed:");
+R(240,"Promoters of a company making a public issue are required to hold, in aggregate, not less than what proportion of post-issue paid-up capital?");
+R(241,"Where the promoters' holding falls short of 20 percent, the shortfall may be met by AIFs, FVCIs, banks, PFIs or insurers to the extent of:");
+R(242,"The requirement of minimum promoter contribution does not apply to an FPO by a company whose shares have been frequently traded for 3 years and which has redressed at least what proportion of investor complaints?");
+R(243,"In an IPO, the minimum promoter contribution is subject to a lock-in of:");
+R(244,"Where the majority of IPO proceeds, excluding the offer for sale, are deployed towards capital expenditure, the minimum promoter contribution is locked in for:");
+R(245,"Promoter shareholding in excess of the minimum contribution is subject to a lock-in of:");
+R(246,"The proceeds of an offer for sale accrue to:");
+R(247,"An offer for sale results in an increase in the share capital of the issuer.");
+R(248,"To be eligible for an IPO, an issuer must have net tangible assets of not less than what amount in each of the preceding three full years?");
+R(249,"To be eligible for an IPO, an issuer must have an average operating profit of not less than what amount during the preceding three years?");
+R(250,"To be eligible for an IPO, an issuer must have a net worth of not less than what amount in each of the preceding three full years?");
+R(251,"Where an issuer has changed its name within the last one year, at least what proportion of its revenue for the preceding year must be derived from the activity indicated by the new name?");
+R(252,"An issuer that does not satisfy the profitability criteria may make an IPO only through book building, subject to allotment of at least what proportion of the net offer to QIBs?");
+R(253,"Following the closure of an IPO or FPO, the securities are required to be listed within:");
+R(254,"Individual investors applying through intermediaries in a public issue of debt securities, for amounts up to Rs. 5 lakh, are required to block funds by means of:");
+R(255,"Buyback of securities by listed companies is regulated by the:");
+R(256,"Which of the following sources may NOT be utilised by a company to fund a buyback of its securities?");
+R(257,"A buyback not exceeding 10 percent of paid-up equity capital and free reserves may be authorised by:");
+R(258,"A buyback shall not exceed what proportion of paid-up capital and free reserves?");
+R(259,"A buyback is required to be completed within what period of the relevant resolution?");
+R(260,"A company may acquire its own shares through a privately negotiated transaction as a mode of buyback.");
+R(261,"The public announcement of a buyback is required to be published within what period of passing the resolution?");
+R(262,"Where the buyback consideration does not exceed Rs. 100 crore, the escrow account must hold:");
+R(263,"The consideration payable under a buyback aggregates Rs. 300 crore. The amount required to be deposited in the escrow account is:");
+R(264,"In a buyback through the tender offer route, the reservation in favour of small shareholders is:");
+R(265,"For the purposes of a buyback, a 'small shareholder' is one whose holding, as on the record date, has a market value not exceeding:");
+R(266,"A buyback offer through the tender offer route remains open for a period of:");
+R(267,"In a buyback through the tender offer route, the company is required to file a draft letter of offer with SEBI.");
+R(268,"The certificate of extinguishment and destruction of bought-back shares is verified by the registrar, two directors (one being the managing director) and the:");
+R(269,"SEBI has reintroduced buyback through the open market route on stock exchanges with effect from:");
+R(270,"An open market buyback through the stock exchange route must close within what period of its opening?");
+R(271,"A buyback through the book building process must remain open for a minimum of:");
+R(272,"Under the amended buyback regulations, the appointment of a merchant banker for a buyback is:");
+R(273,"The shares of promoters in a company undertaking a buyback remain frozen at which level until the closure of the offer?");
+R(274,"A private placement of shares by a listed company is termed a:");
+R(275,"Per the August 2026 workbook, specified securities allotted on a preferential basis to persons other than promoters are subject to a lock-in of:");
+R(276,"A Qualified Institutions Placement may be made exclusively to Qualified Institutional Buyers.");
+R(277,"Under a rights issue in the ratio 3:4, a shareholder is entitled to:");
+R(278,"A private placement of shares lies outside the purview of both SEBI and the Companies Act.");
+R(279,"Specified securities allotted on a preferential basis to promoters or the promoter group are subject to a lock-in of:");
+R(280,"Under Section 42 of the Companies Act, 2013, the number of persons to whom a private placement offer is made in a financial year (excluding QIBs and employees under ESOPs) shall not exceed:");
+R(281,"In a private placement, a company is required to allot securities within what period of receipt of application money?");
+R(282,"Where a company fails to allot securities and refund the application money within the prescribed time in a private placement, it must repay with interest at the rate of:");
+R(283,"Subscription money in a private placement may be accepted in cash.");
+R(284,"To be eligible to make a QIP, a company's shares must have been listed for a period of at least:");
+R(285,"The discount that an issuer may offer on the floor price in a QIP shall not exceed:");
+R(286,"In a QIP of a size exceeding Rs. 250 crore, the minimum number of allottees is:");
+R(287,"No single allottee in a QIP may be allotted more than what proportion of the issue size?");
+R(288,"Securities allotted in a QIP cannot be sold for a period of ____, save on a recognised stock exchange.");
+R(289,"A reservation for employees in a rights issue is permitted, subject to the value of allotment to any employee not exceeding:");
+R(290,"Applications in a rights issue are required to be made exclusively through:");
+R(291,"The minimum period between the grant and vesting of employee stock options is:");
+R(292,"Where a rights entitlement results in a fraction, the treatment of the fractional entitlement is decided by the:");
+R(293,"Rights Entitlements are capable of being traded electronically on stock exchanges.");
+R(294,"The Finance Act, 2020 deferred the collection of tax on the perquisite value of ESOPs in the case of:");
+R(295,"The due diligence certificate in respect of a public issue is furnished by the:");
+R(296,"Where the post-issue capital at offer price does not exceed Rs. 1,600 crore, the minimum public offer is:");
+R(297,"Every public issue of shares must necessarily be accompanied by a credit rating.");
+R(298,"A company is required to refund the application monies if the issue fails to receive subscription of at least:");
+R(299,"In a fixed price issue, the issue price is determined in accordance with a formula prescribed by SEBI.");
+R(300,"A public issue is required to remain open for a minimum of ____ and a maximum of ____ working days.");
+R(301,"The recognised stock exchange, chosen by the issuer, with which the basis of allotment is finalised is known as the:");
+R(302,"The lead manager must ensure that agreements with the depositories for admission of the securities are executed before filing the:");
+R(303,"With effect from September 1, 2022, ASBA applications in public issues are processed:");
+R(304,"An issuer shall make no allotment in a main board IPO if the number of prospective allottees is less than:");
+R(305,"In an SME IPO, the minimum number of prospective allottees is:");
+R(306,"A Retail Individual Investor in a main board issue is one who applies for securities of a value not exceeding:");
+R(307,"In a book built issue, the facility of bidding at the cut-off price is available only to retail individual investors.");
+R(308,"Within the non-institutional category, one-third of the portion is reserved for applications of a value:");
+R(309,"An anchor investor is a QIB that applies for securities of a value of:");
+R(310,"Shares allotted to anchor investors are subject to a lock-in of:");
+R(311,"Where the post-issue capital at offer price exceeds Rs. 4,000 crore, the minimum offer to the public is:");
+R(312,"In a book built IPO, the portion allocated to QIBs shall be:");
+R(313,"Within the QIB portion of a book built IPO, the proportion reserved for mutual funds is:");
+R(314,"In a book built IPO, the portion allocated to non-institutional investors shall be:");
+R(315,"In a book built IPO, the portion allocated to individual investors shall be:");
+R(316,"In a fixed price offer, at least what proportion of the net offer is initially reserved for individual investors?");
+R(317,"The Draft Red Herring Prospectus contains all disclosures save for the:");
+R(318,"The Red Herring Prospectus is filed, prior to the bid opening date, with the:");
+R(319,"The Draft Red Herring Prospectus is filed for observations with:");
+R(320,"Salient disclosures in the DRHP, RHP and price band advertisements for main board issues are also to be made available in audio-visual format, initially in:");
+R(321,"Where minimum subscription is not received, application monies must be refunded or unblocked within what period of issue closure?");
+R(322,"Underwriting of a public issue is mandatory.");
+R(323,"Under which form of underwriting does the underwriter subscribe to the extent of its commitment in the event of under-subscription?");
+R(324,"The minimum subscription and underwriting requirements are not applicable to:");
+R(325,"The purpose of a Green Shoe Option is to:");
+R(326,"Under a Green Shoe Option, the over-allotment of shares shall not exceed what proportion of the issue size?");
+R(327,"Shares for over-allotment under a Green Shoe Option are lent by the promoter and/or a shareholder holding more than what proportion of the issued capital?");
+R(328,"The monies received from over-allotment under a Green Shoe Option are deployed by the:");
+R(329,"During the stabilisation period, the Stabilising Agent is permitted to both buy and sell shares in the market.");
+R(330,"The stabilisation mechanism under a Green Shoe Option remains available for a period of:");
+R(331,"Any balance remaining in the GSO bank account after stabilisation is transferred to the:");
+R(332,"Where the shares bought back by the Stabilising Agent fall short of the shares borrowed, the shortfall is met by way of:");
+R(333,"A company offers 5,000 shares through book building in a price band of Rs. 120-144. Bids received are: Rs. 144: 1,000; Rs. 140: 1,500; Rs. 135: 2,500; Rs. 130: 1,000; Rs. 120: 500. The cut-off price will be:");
+R(334,"In a book building offer, the cap of the price band shall not exceed the floor price by more than:");
+R(335,"Where the price band is revised during the bidding period, the issue period must be extended by:");
+R(336,"In a book built issue, credit of shares to demat accounts or unblocking of funds must be completed within what period of issue closure?");
+R(337,"In the case of an SME IPO, the post-issue paid-up capital (at face value) of the issuer is:");
+R(338,"In the case of SME IPOs, observations on the draft offer document are issued by the:");
+R(339,"The underwriting requirement in an SME IPO is:");
+R(340,"Market making is compulsory in respect of SME IPOs.");
+R(341,"Companies listed on the SME platform are required to report their financial results:");
+R(342,"For an SME IPO, the issuer must have net tangible assets of Rs. 3 crore in how many of the immediately preceding full financial years?");
+R(343,"The minimum application size and trading lot on the SME platform shall not be less than:");
+R(344,"For listing on the SME segment, there must have been no change in the promoters of the company during what period preceding the application?");
+R(345,"Every application form in a public issue is required to be accompanied by a(n):");
+R(346,"In the case of an IPO by an unlisted company, the lead manager arranges for the IPO to be graded by a(n):");
+R(347,"The responsibilities of the lead manager in respect of an issue extend until the:");
+R(348,"In a fixed price issue, investors become aware of the price at which shares will be allotted:");
+R(349,"The basis of allotment, after approval by the issuer's board, is required to be:");
+R(350,"The roles and responsibilities of each intermediary in the issue process are defined by the lead manager.");
+R(351,"Which of the following modes of payment is mandatory in an initial public offer of shares?");
+R(352,"The Register of Members and allotment registers relating to an issue are prepared by:");
+R(353,"Bankers to the issue for collection of monies from anchor investors are appointed by the:");
+R(354,"The Registrar to the Issue is required to maintain, accurately and at all times, the electronic records relating to ASBA applications.");
+R(355,"The Registrar and Transfer Agent for an issue is appointed by:");
+R(356,"Prior to filing the RHP, selling shareholders are required to open a share escrow account with the:");
+R(357,"For obtaining the ISIN for the issuer's shares, the RTA liaises with:");
+R(358,"The RTA liaises with the issuer for dematerialisation of shares held in physical form by existing shareholders prior to the filing of the:");
+R(359,"The Registrar is required to procure final certificates from all SCSBs within what period of the closure of the offer?");
+R(360,"The rejection list in a public issue is prepared by the RTA on the basis of:");
+R(361,"The Return of Allotment prepared by the RTA is meant for filing with the:");
+R(362,"The Confirmation Allocation Note is despatched by the RTA to:");
+R(363,"Instructions for imposing lock-in on pre-offer share capital are issued by the RTA to the:");
+R(364,"In UPI-based applications, the Sponsor Bank acts as a conduit between:");
+R(365,"A Sponsor Bank is a Banker to an Issue that has obtained UPI certification from:");
+R(366,"The functions of a Banker to an Issue include:");
+R(367,"Non-scheduled Payments Banks may register as Bankers to an Issue with the prior approval of:");
+R(368,"ASBA was made mandatory in IPOs and rights issues for all categories of investors with effect from:");
+R(369,"For offering the ASBA facility, an investor's bank must be registered with SEBI as a:");
+R(370,"All Designated Branches of an SCSB function under the control of a branch known as the:");
+R(371,"Application monies in an ASBA account remain blocked until:");
+R(372,"The nodal agency for redressal of complaints relating to ASBA is the:");
+R(373,"The Unified Payments Interface was developed by:");
+R(374,"The use of UPI along with ASBA by retail investors applying through intermediaries was introduced in phases with effect from:");
+R(375,"The UPI mechanism in public issues may be used for applications of a value up to:");
+R(376,"Multiple applications are identified and rejected by the Registrar on the basis of a common:");
+R(377,"Registrars are required to share details of cancelled or withdrawn applications with SCSBs on a daily basis within what period of bid closure?");
+R(378,"UPI mandates in respect of non-allotted or partially allotted applications must be unblocked by:");
+R(379,"RTAs were required to make the facility of standardised and validated UPI IDs available by:");
+R(380,"Under the T+3 timeline, trading in shares allotted in a public issue commences on:");
+R(381,"On the issue closing day (T), the cut-off time for acceptance of UPI mandates is:");
+R(382,"On the issue closing day, bidding for the QIB and NII categories closes at:");
+R(383,"The stock exchange approves the basis of allotment:");
+R(384,"Brokers to an issue are remunerated by way of:");
+R(385,"Before the issue opens, the Registrar intimates the SCSBs of the basis of commission payable and the:");
+R(386,"Syndicate members upload bids received through ASBA forms onto the bidding platform of the:");
+R(387,"Physical certificates in respect of shares that have been dematerialised are ____ by the R&T Agent.");
+R(388,"An investor wishing to hold securities in electronic form opens a demat account with a:");
+R(389,"In respect of shares held in dematerialised form, the registered owner in the books of the issuer is the:");
+R(390,"Shares may be dematerialised only at the time of their public issue.");
+R(391,"Fungibility implies that the certificate numbers, distinctive numbers and folio numbers of dematerialised shares continue to be preserved.");
+R(392,"The Depositories Act was enacted in the year:");
+R(393,"The depositories presently operating in India are:");
+R(394,"The functions of a depository are best likened to those of a:");
+R(395,"Under the SEBI (ICDR) Regulations, all issues by public limited companies are required to be made in:");
+R(396,"The eligibility of a company's securities for admission to a depository is assessed by the depository's:");
+R(397,"Which of the following securities are eligible for dematerialisation?");
+R(398,"The ISIN allotted to a security is a unique code consisting of how many characters?");
+R(399,"An ISIN allotted to an Indian security begins with the characters:");
+R(400,"The last character of an ISIN represents the:");
+R(401,"The tripartite agreement in the depository system is executed among:");
+R(402,"Under the tripartite agreement, the issuer or its RTA must adhere to timelines of ____ for demat requests and ____ for remat requests.");
+R(403,"Under the tripartite agreement, complaints received from a beneficial owner are required to be resolved within:");
+R(404,"The responsibility for destruction, cancellation and mutilation of certificates received for dematerialisation rests with the:");
+R(405,"Depository Participants are appointed by the depository with the approval of:");
+R(406,"Which of the following entities are eligible to be appointed as Depository Participants?");
+R(407,"SEBI has prescribed a minimum net worth requirement for DPs falling in which categories?");
+R(408,"Where eligible demat account holders fail to link their PAN with Aadhaar, their accounts are treated as:");
+R(409,"Designated Depository Participants are authorised to grant registration to:");
+R(410,"The Designated Depository Participant and the Custodian of an FPI must be one and the same entity.");
+R(411,"An FPI whose registration ceases to be valid may divest its securities or close out derivative positions within:");
+R(412,"An FPI pays the registration fee in advance for each block of:");
+R(413,"Holding securities in dematerialised form reduces transaction costs, including:");
+R(414,"In the records of the issuer, the investor holding shares in dematerialised form is the:");
+R(415,"A Depository Participant is required to furnish a statement of transactions to its clients at least:");
+R(416,"Securities applied for in a public offer are credited:");
+R(417,"Every entry in a beneficial owner's account must be supported by appropriate instructions from the client.");
+R(418,"Holdings across folios and across instruments such as equity, debt and government securities can be consolidated when held in:");
+R(419,"Upon dematerialisation, the name entered in the Register of Members in place of the investor is that of the:");
+R(420,"The database of distinctive numbers of equity shares of listed companies is created and maintained by the:");
+R(421,"Credits are received automatically in a beneficiary account only where the account holder has given standing instructions.");
+R(422,"A fresh ISIN is created by the depository on every occasion of a bonus or rights issue.");
+R(423,"A debit to a beneficiary account can be effected only on receipt of a:");
+R(424,"The process of dematerialisation refers to:");
+R(425,"For dematerialisation, the investor submits the certificates to the DP along with the:");
+R(426,"The number generated by the depository system for a demat request, which is recorded on the DRF, is the:");
+R(427,"Certificates received by the RTA for dematerialisation are marked with the words:");
+R(428,"Before confirming a demat request, the RTA must ascertain that:");
+R(429,"Certificates bearing a 'Lock in period' remark continue to carry the lock-in tag in demat mode if the lock-in has not expired.");
+R(430,"Dematerialisation of shares attracts stamp duty.");
+R(431,"A demat request may be rejected where the physical certificates are received after what period of the electronic request?");
+R(432,"Which of the following constitutes a valid ground for rejection of a demat request?");
+R(433,"Dematerialisation must be completed within what period of receipt of the physical request?");
+R(434,"Particulars of certificates shredded after dematerialisation are recorded in the:");
+R(435,"After dematerialisation, the RTA records the beneficial owner's account number in the:");
+R(436,"Dematerialisation Request Forms are required to be preserved for a period of at least:");
+R(437,"Where shares are allotted in demat form in an IPO, the allotment advice contains the:");
+R(438,"Rematerialisation refers to the process of:");
+R(439,"On receipt of a Rematerialisation Request Form, the DP validates:");
+R(440,"Which of the following particulars are captured in the Rematerialisation Request Form?");
+R(441,"In a remat, the RTA assigns new certificate numbers and distinctive numbers out of:");
+R(442,"Rematerialised certificates are despatched after affixing the applicable revenue stamps and the:");
+R(443,"Rematerialisation must be completed within what period of receipt of the physical RRF?");
+R(444,"Trades negotiated directly between counterparties and settled outside the clearing mechanism of a stock exchange are known as:");
+R(445,"The Delivery Instruction Slip bears the pre-printed name, address and DP ID, while the client ID is:");
+R(446,"In respect of a market trade, the receiver details in the DIS comprise the:");
+R(447,"The execution date stated on a DIS is the date on which:");
+R(448,"A Delivery Instruction Slip is required to be signed by:");
+R(449,"In an off-market transaction, settlement of the consideration takes place:");
+R(450,"The clearing corporation interposes itself between the counterparties to every exchange trade because:");
+R(451,"In respect of a market sale, the seller instructs his DP to transfer the securities to the:");
+R(452,"The broker delivers securities to the clearing corporation by the:");
+R(453,"Secondary market trades in India moved to a T+1 settlement cycle with effect from:");
+R(454,"The SEBI (D&P) Regulations, 2018 require depositories to be:");
+R(455,"Inter-depository delivery is possible only where the security is admitted for dematerialisation in both depositories.");
+R(456,"Instructions for inter-depository transfers are exchanged between the depositories:");
+R(457,"The particulars furnished by the depository in respect of a new beneficial owner include:");
+R(458,"The Beneficial Owner Master Register is updated by the:");
+R(459,"A demat account holder's request for change of address, bank details or nominee is to be lodged with the:");
+
+// Formal exam-style rewrites of existing stems (ids 460-652)
+R(460,"For the purpose of a corporate action, the depository furnishes a download of beneficial owners as on the:");
+R(461,"In respect of a bonus issue, the company is required to intimate the record date to:");
+R(462,"The RTA approaches the depository for credit of bonus shares after the issuer has completed listing formalities on the strength of:");
+R(463,"A company may have more than one ISIN for its equity shares only where:");
+R(464,"Bonus shares are required to be allotted:");
+R(465,"Under the bonus framework effective October 1, 2024, issuers must apply for in-principle approval within what period of the Board meeting?");
+R(466,"Under the revised bonus framework, the deemed date of allotment of bonus shares is:");
+R(467,"Under the revised bonus framework, bonus shares become available for trading on:");
+R(468,"Under the revised bonus framework, bonus shares continue to be credited initially under a temporary ISIN.");
+R(469,"In a rights issue, the R&T Agent computes entitlements and despatches to beneficial owners the:");
+R(470,"After verification of applications, the R&T Agent communicates details of rights shares allotted to the depository by way of a:");
+R(471,"In a merger where the shares of both companies are admitted to a depository, the exchange of shares is effected:");
+R(472,"Where two companies amalgamate into a new entity whose shares are admitted to a depository, the shareholders:");
+R(473,"Activities connected with a merger, such as intimating the depository and computing entitlements, are performed by the RTA of the:");
+R(474,"Reconciliation of records between the RTA and the depository is undertaken:");
+R(475,"In the reconciliation process, the holding in the Register of Members together with pending demat and remat requests must tally with:");
+R(476,"A frequent cause of discrepancy in the reconciliation between RTA and depository records is:");
+R(477,"The creation of a database of distinctive numbers was recommended by the:");
+R(478,"In addition to the DN details of all physical shares, the DN database contains:");
+R(479,"Where shares are transferred in full in physical form, the transferee is allotted:");
+R(480,"In the case of a partial transfer of shares held in physical form:");
+R(481,"Upon the issue of a duplicate share certificate:");
+R(482,"Upon processing a request for split or consolidation of certificates:");
+R(483,"Transmission and transposition are reflected in the Register of Members in the same manner as a:");
+R(484,"When shares are dematerialised, the corresponding distinctive numbers in the Register of Members are transferred to the:");
+R(485,"In order to identify the beneficial owners of dematerialised holdings, the RTA relies upon the:");
+R(486,"Upon rematerialisation, the shareholder is allotted:");
+R(487,"The newspaper notice regarding transfer of shares to the IEPF must be published in leading newspapers in:");
+R(488,"For transfer of dematerialised shares to the IEPF, the company intimates the depositories by way of a:");
+R(489,"At the time of transferring shares to the IEPF, the company submits a statement to the Authority in Form:");
+R(490,"The voting rights attached to shares transferred to the IEPF:");
+R(491,"All benefits accruing on shares held in the IEPF account are credited to that account, save for:");
+R(492,"The envelope containing the refund claim sent to the company's Nodal Officer is to be superscribed:");
+R(493,"Refunds by the IEPF Authority are released by electronic transfer to the claimant's:");
+R(494,"Documents for transfer of shares to the IEPF are signed by such person as the Board authorises, namely:");
+R(495,"Shares transferred to the IEPF are excluded while computing total voting rights under the Takeover Regulations.");
+R(496,"Within the depository system, an investor's holding is identified by:");
+R(497,"The issue of duplicate certificates in lieu of lost certificates must be completed within what period of submission of complete documents?");
+R(498,"Upon registration of a Power of Attorney, the R&T Agent assigns to it a:");
+R(499,"Transmission of shares is permissible only where the shares are held jointly by more than one holder.");
+R(500,"A request for change of address need be signed only by the first holder.");
+R(501,"A resident shareholder aged below 60 years, eligible for nil deduction, wishes to avoid TDS on dividend income. The declaration to be furnished is:");
+R(502,"Under the QTP framework, transmission of dematerialised securities may be processed through the simplified mechanism where the value does not exceed:");
+R(503,"Under the QTP framework, the value limit for transmission of securities held in physical form is:");
+R(504,"While processing which of the following service requests must listed companies issue securities only in dematerialised form?");
+R(505,"Under the earlier process, the RTA issued a Letter of Confirmation within what period of the service request?");
+R(506,"A Letter of Confirmation remained valid for what period for the holder to submit a demat request to the DP?");
+R(507,"The requirement of issuing a Letter of Confirmation was dispensed with from:");
+R(508,"Under the direct credit process, securities are credited in dematerialised form within what period of receipt of the service request?");
+R(509,"The Client Master List submitted along with a service request must not be older than:");
+R(510,"The Inward Register maintained by an RTA records the:");
+R(511,"Client due diligence by intermediaries is mandated principally under the:");
+R(512,"For KYC purposes, a 'beneficial owner' refers to:");
+R(513,"The prescribed instrument of transfer for securities held in physical form is Form:");
+R(514,"An instrument of transfer is valid if lodged within what period of its execution?");
+R(515,"Where transfer documents are found deficient, they must be returned to the transferee within what period of receipt?");
+R(516,"Save for transmission and transposition, requests for transfer of securities are not processed unless the securities are in dematerialised form, with effect from:");
+R(517,"With effect from April 1, 2019, investors are prohibited from holding shares in physical form.");
+R(518,"The cut-off date for re-lodgement of transfer deeds returned on account of deficiencies was:");
+R(519,"The special window for transfer and dematerialisation of physical securities sold prior to April 1, 2019 was first open from:");
+R(520,"Securities remaining unclaimed, as where LOC holders failed to dematerialise them in time, are held in a:");
+R(521,"The proof of new address furnished with a request for change of address must not be more than:");
+R(522,"Upon effecting a change of address, the RTA sends an intimation to:");
+R(523,"A request for change of bank details must be supported by:");
+R(524,"Nomination in respect of physical securities is registered using Form:");
+R(525,"An existing nomination may be varied or cancelled by means of Form:");
+R(526,"An investor who does not wish to nominate may declare so by means of Form:");
+R(527,"Where the nominee is a minor, the RTA takes on record:");
+R(528,"On registration of a nomination, the system generates a unique:");
+R(529,"Form 121, introduced under the Income-tax Rules, 2026, replaces:");
+R(530,"In respect of each declaration in Form 121, the payer allots a:");
+R(531,"The common form prescribed by SEBI for registration or updation of PAN and KYC details by physical holders is:");
+R(532,"With effect from which date do RTAs not process any service request or complaint until PAN, KYC and nomination details are furnished?");
+R(533,"In the case of a minor mismatch in signature, the RTA intimates the holder and allows what period for raising an objection?");
+R(534,"In the case of a major mismatch in signature, the holder must furnish a cancelled cheque or bank statement together with the banker's attestation in Form:");
+R(535,"Where there is a major mismatch in name on account of marriage, the holder must furnish:");
+R(536,"A request for change of address may be processed without awaiting the 15-day objection period where:");
+R(537,"RTAs may insist upon affidavits, attestation or notarisation of documents in support of KYC updation.");
+R(538,"An RTA may insist upon an indemnity only in respect of service requests for:");
+R(539,"Which of the following modes is permitted for submission of service request documents to the RTA?");
+R(540,"On being informed of the loss of certificates, the RTA first records a:");
+R(541,"The loss of certificates and the issue of duplicates must be intimated to the stock exchange within:");
+R(542,"An FIR and newspaper advertisement are not required for issue of duplicate certificates where the value of securities does not exceed:");
+R(543,"A surety is required for the issue of duplicate securities.");
+R(544,"Where the value of lost securities does not exceed Rs. 10,000, the Affidavit-cum-Indemnity for a duplicate may be executed:");
+R(545,"The two witnesses to an Affidavit-cum-Indemnity for a duplicate certificate must be persons who are:");
+R(546,"A request for issue of duplicate share certificates is made in:");
+R(547,"If an FIR or police complaint is not furnished within what period of the intimation of loss, the stop transfer is withdrawn?");
+R(548,"If supporting documents for a stop transfer are not received within what period of intimating the holder, the RTA may process the service request?");
+R(549,"Transmission under Quick Transmission Processing is permissible only in favour of:");
+R(550,"Under the revised framework, the threshold for simplified documentation in respect of physical securities is:");
+R(551,"Under the revised framework, the threshold for simplified documentation in respect of dematerialised securities is:");
+R(552,"Under the revised transmission framework, a Probate of Will remains mandatory.");
+R(553,"A death certificate bearing a QR code is acceptable as a verifiable document for the purposes of transmission.");
+R(554,"For transmission above the simplified threshold, a Legal Heirship Certificate must be issued by a revenue authority not below the rank of:");
+R(555,"Where the claimant produces a Succession Certificate, which documents cease to be required under the simplified documentation route?");
+R(556,"The RTA must give effect to transmission of securities held in dematerialised and in physical mode within ____ and ____ respectively.");
+R(557,"As per the RTA Investor Charter, the expected timeline for processing a request for transposition is:");
+R(558,"As per the RTA Investor Charter, the expected timeline for a change in name, signature or nomination is:");
+R(559,"As per the RTA Investor Charter, the expected timeline for updation of PAN is:");
+R(560,"As per the RTA Investor Charter, intimation of corporate benefits through physical communication is expected within:");
+R(561,"Under Phase II of online processing, a common website for all RTAs, developed and operated by QRTAs, has been functional since:");
+R(562,"The RTA assists the listed entity in despatching the annual report not less than what period before the AGM?");
+R(563,"A notice of the AGM sent by post or courier must be despatched how far in advance?");
+R(564,"Proxy forms must be received by the company not less than what period before the AGM?");
+R(565,"The remote e-voting facility is closed by the RTA:");
+R(566,"A VC/OAVM facility for general meetings must accommodate at least how many members on a first-come-first-served basis?");
+R(567,"SEBI has enabled individual demat holders to e-vote through a single login by way of:");
+R(568,"Which of the following is a right of investors under the RTA Investor Charter?");
+R(569,"An RTA is required to raise objections on a service request:");
+R(570,"While furnishing a copy of Aadhaar with a service request, the investor should mask the:");
+R(571,"Upon receipt or updation of bank details, the RTA suo motu requests the company's bankers to:");
+R(572,"For change of signature through an in-person visit, the investor signs before RTA personnel and produces:");
+R(573,"The proceeds of a sale executed in the secondary market accrue to the:");
+R(574,"Which entity guarantees the settlement of trades executed on a stock exchange?");
+R(575,"Stock exchanges in India are regulated by:");
+R(576,"KYC norms are merely optional formalities adopted by certain market participants for their own protection.");
+R(577,"Stock brokers are members of a stock exchange authorised to execute trades on that exchange.");
+R(578,"The secondary market performs which of the following functions?");
+R(579,"The principal stock exchanges in India are:");
+R(580,"The trading system on Indian stock exchanges is characterised by:");
+R(581,"Trading in dematerialised securities offers the advantage of:");
+R(582,"Which of the following entities are prohibited from investing in the Indian securities market?");
+R(583,"Qualified Foreign Investors were permitted to invest directly in Indian equities with effect from:");
+R(584,"To trade in dematerialised securities, an investor requires a trading account with a broker and a:");
+R(585,"Under the UPI block facility for secondary market trades, funds remain in the client's account but are blocked in favour of the:");
+R(586,"The exposure that a broker may assume in the market is a multiple of its:");
+R(587,"The minimum net worth prescribed for DPs ranges from ____ in the case of RTAs to ____ in the case of NBFCs.");
+R(588,"To remain listed, a company must maintain a minimum continuous public shareholding of:");
+R(589,"Public shareholding of 10 percent is permissible where the post-issue capital at offer price exceeds Rs. 4,000 crore but is less than:");
+R(590,"The articles of a listed company must provide, in terms of the SCRA requirements, that dividends shall not be forfeited unless barred by limitation.");
+R(591,"Under the listing agreement, proceedings of board meetings relating to corporate actions must be intimated to the exchange within:");
+R(592,"Under Regulation 6 of LODR, the Compliance Officer of a listed entity must be a:");
+R(593,"Under Regulation 7 of LODR, where share transfer work is handled in-house and the number of holders exceeds ____, the entity must register as a Category II STA or appoint an RTA.");
+R(594,"On appointment of a new share transfer agent, a listed entity must inform the stock exchange within:");
+R(595,"Under Regulation 9 of LODR, documents not required to be preserved permanently must be preserved for at least:");
+R(596,"Under Regulation 13(3) of LODR, the statement of investor complaints is filed within:");
+R(597,"Under Regulation 31(1) of LODR, the shareholding pattern is submitted within what period of the end of each quarter?");
+R(598,"Quarterly financial results, other than for the last quarter, are required to be submitted within what period of the end of the quarter?");
+R(599,"Prior intimation of a board meeting at which financial results are to be considered must be given at least:");
+R(600,"Material events decided at a board meeting must be disclosed to the exchanges within what period of closure of the meeting?");
+R(601,"Material events emanating from within the listed entity must be disclosed within:");
+R(602,"Under LODR, a subsidiary is a 'material subsidiary' if its income or net worth exceeds what proportion of the consolidated income or net worth?");
+R(603,"Under the LODR master circular effective January 30, 2026, at least what proportion of non-promoter shareholding must be in dematerialised form?");
+R(604,"The threshold for classification as a High Value Debt Listed Entity has been raised to outstanding listed non-convertible debt of:");
+R(605,"Under Regulation 61A(3) of LODR, unclaimed amounts lying in escrow accounts are transferred to the IEPF after:");
+R(606,"Under Regulation 39(2) of LODR, listed entities must credit securities in demat form in respect of requests for split, consolidation or duplicates within:");
+R(607,"The cyber resiliency goals under SEBI's CSCRF, adopted from CERT-In's Cyber Crisis Management Plan, are:");
+R(608,"To rate the cybersecurity and resilience controls of regulated entities, the CSCRF introduced a:");
+R(609,"A Dividend Distribution Policy must be disclosed in the annual report and on the website by the top how many listed entities?");
+R(610,"Listed entities must publish their financial results in at least one English national daily within what period of the board meeting?");
+R(611,"A listed entity must update any change in the content of its website within:");
+R(612,"The principle of performing a procedure correctly the first time and every time is known as:");
+R(613,"A positive attitude and patience do not form part of the core skill requirements for client servicing roles.");
+R(614,"The ability to place oneself in another's position and appreciate his feelings and emotions is termed:");
+R(615,"Effective client servicing requires extensive product knowledge.");
+R(616,"Which of the following contributes to improving the productivity of an economy?");
+R(617,"The concept of First Time Right has its origins in:");
+R(618,"Which of the following is an essential ingredient for First Time Right to function effectively?");
+R(619,"Which technique helps establish rapport with an investor quickly?");
+R(620,"The first step in discharging client servicing responsibilities is:");
+R(621,"Cultivating patience in client servicing is beneficial because it:");
+R(622,"Compassion in client servicing, being the ability to feel for another, results in:");
+R(623,"In rendering customer service, the priority should be to:");
+R(624,"A client service executive who acts as the link between the company, intermediaries, regulators and investors is demonstrating:");
+R(625,"Which of the following is a rule of effective communication in investor service?");
+R(626,"The most appropriate time to seek feedback from a client is:");
+R(627,"Before sharing knowledge with investors, RTA staff are expected to be conversant with regulations such as:");
+R(628,"The etiquette of 'keeping promises' implies:");
+R(629,"Under the SOP, every incoming request is inwarded and allotted a separate:");
+R(630,"Where an objection is raised, the objection letter is sent to the shareholder along with:");
+R(631,"Lodgements where the aggregate value of securities exceeds a specified threshold are:");
+R(632,"Under the SOP, mandatory KYC comprises PAN as proof of identity and utility bills not older than:");
+R(633,"An RTA may shred documents only after:");
+R(634,"Which of the following falls among the 'Don'ts' of client servicing?");
+R(635,"Which of the following falls among the 'Dos' of client servicing?");
+R(636,"Upon registration of a complaint, the RTA ensures that a ____ is generated and communicated to the complainant's email and mobile.");
+R(637,"Which of the following particulars is optional when an investor lodges a grievance with an RTA?");
+R(638,"Registered RTAs must disclose data on complaints received on their websites by the:");
+R(639,"An investor must, in the first instance, take up a grievance with:");
+R(640,"Where the entity fails to redress a complaint within the stipulated time, the investor may lodge the complaint on:");
+R(641,"Having exhausted all other avenues, an investor who remains dissatisfied may initiate online dispute resolution through:");
+R(642,"The common Online Dispute Resolution portal has been established by:");
+R(643,"ODR institutions empanelled by MIIs provide the services of:");
+R(644,"A market participant may also invoke dispute resolution through the ODR portal after serving due notice on the investor.");
+R(645,"A party aggrieved by the award of the appellate arbitrator may appeal to the:");
+R(646,"SCORES 2.0, featuring auto-routing and auto-escalation of complaints, was introduced by SEBI in:");
+R(647,"Investor grievances lodged on SCORES 2.0 or with the company or RTA must be redressed not later than:");
+R(648,"Under the ODR mechanism, conciliation must be completed within:");
+R(649,"Under the ODR mechanism, arbitration must be concluded within:");
+R(650,"Which of the following should be borne in mind while thanking investors?");
+R(651,"An investor may be defined as any person or entity who:");
+R(652,"Etiquette in investor service refers to:");
+
 // Option-length balancing: correct answers trimmed, distractors given matching detail
 X(1,"Both dividend and capital appreciation",["Dividend and fixed interest","Capital appreciation and interest","Fixed interest and redemption premium"]);
 X(5,"Limited to their contribution or unpaid amount agreed",["Unlimited, extending to personal assets","Equal to the company's total outstanding debts","Limited to the current market value of shares"]);
@@ -1134,11 +1800,322 @@ X(633,"Written approval of the client company",["A waiting period of 30 days aft
 X(635,"Deal with inquiries promptly, First Time Right",["Divulge investor information to other clients","Discriminate among different classes of investors","Indulge in unfair competition with other RTAs"]);
 X(651,"Commits capital expecting returns",["Only trades in derivatives contracts","Lends money only to the RTA","Works for a recognised stock exchange"]);
 
+// ===== Advanced questions: statement I/II (S2), assertion-reason (AR), NOT/INCORRECT, scenario and calculation (H) =====
+// Ch 1
+S2(1,"Consider the following statements regarding equity and debt capital:","Equity capital carries a contractual obligation to pay a fixed return every year.","Debt capital ranks ahead of equity capital for repayment at the time of liquidation.","II","Equity has no assured return; lenders are repaid before shareholders.");
+AR(1,"The rate of interest a company pays on its borrowings depends on its default risk.","A credit rating by a SEBI registered CRA indicates the likelihood of timely servicing of debt.",0,"The rating measures default risk, which in turn determines the coupon.");
+H(1,"Which of the following does NOT alter the share capital of a company?","Purchase of shares by one investor from another on a stock exchange",["Allotment of shares in an initial public offer","Extinguishment of shares bought back by the company","Allotment of bonus shares to existing holders"],"Secondary market trades change only the holder, not the capital.");
+S2(1,"With regard to hybrid securities, consider the following statements:","Preference shares are regarded as hybrids as they carry a pre-determined rate of dividend.","Convertible debentures are regarded as hybrids as they eventually turn into equity.","Both","Both are cited as hybrid securities in the workbook.");
+H(1,"An investor holds 2.5 lakh shares of a company having 50 lakh shares outstanding and buys another 2.5 lakh shares in the secondary market. His shareholding now stands at:","10 percent",["5 percent","15 percent","2.5 percent"],"5 lakh / 50 lakh = 10 percent; secondary purchases do not change total shares outstanding.");
+S2(1,"Consider the following statements:","Equity shareholders enjoy limited liability.","Equity shareholders are entitled to a fixed return every year.","I","Liability is limited, but returns are uncertain.");
+H(1,"Which of the following statements regarding the tenor of debt is CORRECT?","Debt repayable within one year is short-term; beyond one year is long-term",["Debt repayable within three years is short-term; beyond is long-term","All debt carrying a coupon is long-term, irrespective of tenor","Long-term debt cannot be raised for more than ten years"],"Short term is less than 1 year; long term is more than 1 year, even 30 years or more.");
+AR(1,"Equity capital is regarded as risk capital.","Equity shareholders are paid before secured lenders on liquidation.",2,"A is true. R is false: equity holders are paid last.");
+
+// Ch 2
+H(2,"A company having shares of face value Rs. 5 declares a dividend of 150 percent. The market price is Rs. 375. The dividend per share and the dividend yield respectively are:","Rs. 7.50 and 2 percent",["Rs. 7.50 and 1.5 percent","Rs. 5.63 and 1.5 percent","Rs. 562.50 and 150 percent"],"5 x 150% = Rs. 7.50; 7.50 / 375 = 2 percent.");
+H(2,"Mr. A holds 450 shares. The company announces a bonus issue in the ratio 2:3. After the bonus, he will hold:","750 shares",["675 shares","900 shares","600 shares"],"450 x 2/3 = 300 bonus shares; 450 + 300 = 750.");
+H(2,"Ms. B holds 600 shares of face value Rs. 10. The company sub-divides each share into shares of Re. 1 and then issues a 1:5 bonus. Her final holding is:","7,200 shares",["6,000 shares","7,000 shares","1,200 shares"],"Split: 6,000 shares; bonus 1 for every 5 = 1,200; total 7,200.");
+S2(2,"Consider the following statements on preference shares:","Preference shareholders have priority over equity shareholders for dividend.","Preference shareholders have priority over debenture holders on winding up.","I","Debenture holders are creditors and rank above all shareholders.");
+S2(2,"With respect to reduction of share capital, consider the following:","It requires a special resolution of the shareholders.","It is permitted even when the company is in arrears in repayment of deposits.","I","Arrears on deposits or interest bar a reduction of capital.");
+AR(2,"A rights issue protects existing shareholders against dilution of ownership.","Shares in a rights issue are first offered to existing shareholders in proportion to their holding.",0,"The proportionate offer lets holders maintain their percentage.");
+AR(2,"Consolidation of shares increases the value of a shareholder's holding.","Consolidation increases the face value of each share.",3,"A is false: the value of the holding is unchanged. R is true.");
+H(2,"Which of the following is NOT a right of an equity shareholder?","Right to an assured annual dividend",["Right to vote on resolutions","Right to inspect books as permitted by law","Right to transfer the shares"],"Dividend is not assured for equity shareholders.");
+H(2,"Authorised capital is Rs. 50 crore. The company has issued 3 crore shares of Rs. 10 each, of which Rs. 6 per share has been called and paid. The paid-up capital is:","Rs. 18 crore",["Rs. 30 crore","Rs. 50 crore","Rs. 12 crore"],"3 crore x Rs. 6 = Rs. 18 crore.");
+S2(2,"Regarding buyback of shares, consider the following:","Shares bought back are extinguished.","All shareholders are compelled to tender their shares.","I","Participation in a buyback is voluntary.");
+H(2,"Mr. C held 8 percent of a company and subscribes fully to its 1:1 rights issue. All other entitlements are renounced to outsiders who subscribe in full. Mr. C's holding after the issue is:","8 percent",["4 percent","16 percent","12 percent"],"He subscribes proportionately, so his percentage is unchanged.");
+AR(2,"Dividend on preference shares reduces the taxable profit of a company.","Interest on debentures is a pre-tax expense, whereas preference dividend is paid from post-tax profit.",3,"A is false; R is true.");
+H(2,"Under the faster rights issue framework, the timelines for completion from Board approval and for listing from issue closure are respectively:","23 working days and 3 working days",["30 days and 6 working days","23 working days and 6 working days","15 working days and 3 working days"],"Regulation 85 of ICDR: 23 working days; closure to listing 3 working days.");
+
+// Ch 3
+H(3,"A bond of face value Rs. 1,000 carries a coupon of 9 percent and trades at Rs. 900. Its current yield is:","10 percent",["9 percent","8.1 percent","11 percent"],"Coupon Rs. 90 / price Rs. 900 = 10 percent.");
+H(3,"If market interest rates rise after a fixed rate bond is issued, the price of the bond will most likely:","Fall, so that its yield moves towards market rates",["Rise, as its coupon becomes more valuable","Remain unchanged till maturity","Rise, and its coupon will be reset upwards"],"Bond prices and interest rates move inversely.");
+S2(3,"Consider the following statements on credit ratings:","A rating remains unchanged for the entire life of the instrument.","Provisional ratings must be prefixed with the word 'Provisional'.","II","Ratings are dynamic and are monitored by CRAs.");
+S2(3,"With regard to rating symbols, consider the following:","Modifiers '+' and '-' may be used for long-term ratings from AA to C.","Short-term ratings A1 to A4 may carry both '+' and '-' modifiers.","I","Short-term ratings carry only '+'.");
+H(3,"Which of the following instruments is issued at a discount and redeemed at face value without any periodic interest?","Treasury bill",["Floating rate bond","Step-up bond","Inflation indexed bond"],"T-bills are zero coupon securities.");
+AR(3,"Unrated bonds generally offer a higher yield than rated bonds.","Unrated bonds are more illiquid and carry greater uncertainty for investors.",0,"Investors demand higher yield for illiquidity and uncertainty.");
+H(3,"A Certificate of Deposit issued by a financial institution may carry a maturity of:","Two years",["Three days","Six years","Ten years"],"FIs: 1 to 3 years; banks: 7 days to 1 year.");
+S2(3,"Regarding Commercial Paper, consider the following:","CP is a secured money market instrument.","The aggregate CP limit is the lower of the Board-approved limit and the CRA-indicated quantum.","II","CP is unsecured.");
+H(3,"Which of the following statements regarding Certificates of Deposit is INCORRECT?","NRIs may subscribe to CDs on a repatriable basis",["The minimum deposit is Rs. 1 lakh","CDs may be issued in dematerialised form","Banks may issue CDs for 7 days to 1 year"],"NRIs may subscribe only on a non-repatriable basis.");
+AR(3,"Government securities carry no default risk.","The interest rate on a bond depends on the default risk of its issuer.",1,"Both true, but R is a general rule and does not explain why G-secs carry no default risk.");
+H(3,"An investor buys a 182-day T-bill at Rs. 97.50 and holds it till maturity. The absolute gain per bill is:","Rs. 2.50",["Rs. 97.50","Rs. 0.25","Rs. 102.50"],"Face value Rs. 100 minus Rs. 97.50.");
+H(3,"Which instrument best suits a company whose project generates cash flows only after a long gestation period?","Deep discount bond",["Amortising bond","Plain vanilla bond with monthly coupon","Step-down coupon bond"],"No periodic interest is payable during the gestation period.");
+S2(3,"Regarding mortgage-backed securities, consider the following:","They are created by pooling assets that generate regular cash flows.","In India they are known as Structured Obligations (SO).","Both","Both statements are correct.");
+
+// Ch 4
+S2(4,"Consider the following statements on Depository Receipts:","DR holders are entitled to dividends and capital appreciation.","DR holders can vote at general meetings of the issuing company.","I","DR holders do not have voting rights.");
+H(4,"Which of the following statements regarding FCCBs is CORRECT?","Conversion is usually at a premium to the market price at issue",["Interest is payable in Indian rupees","Issuance is regulated by AMFI","Conversion is always at face value"],"Interest and principal are in foreign currency; RBI regulates under FEMA.");
+AR(4,"Warrants are generally exercised only when the market price exceeds the exercise price.","Otherwise the investor can buy the share more cheaply in the market.",0,"R explains why warrants are exercised only in that case.");
+H(4,"Which of the following is NOT true of Exchange Traded Funds?","They are not traded on any stock exchange",["They are passively managed","They track an index or benchmark","Their prices are available in real time"],"ETFs are listed and traded on exchanges.");
+S2(4,"With regard to REITs and InvITs, consider the following:","The minimum offer size for an initial REIT offer is Rs. 250 crore.","The minimum subscription amount is Rs. 2 lakh.","I","Minimum subscription is Rs. 10,000 to Rs. 15,000.");
+H(4,"Category III Alternative Investment Funds may be:","Open-ended or close-ended",["Only close-ended","Only open-ended","Only listed on an exchange"],"Category I and II are close-ended only.");
+AR(4,"Corporate fixed deposits carry higher risk for investors.","Corporate FDs are governed by Section 76 of the Companies Act, 2013.",1,"Both true; R does not explain the risk (which comes from FDs being unsecured).");
+H(4,"A Partly Convertible Debenture of Rs. 1,000 converts Rs. 400 into equity. On maturity, the investor receives:","Rs. 600 as redemption of the non-convertible portion",["Rs. 1,000 in cash","Shares worth Rs. 1,000","Nothing further"],"The non-convertible portion is repaid at maturity.");
+
+// Ch 5
+H(5,"A scheme has total assets of Rs. 820 crore, liabilities of Rs. 20 crore and 40 crore units outstanding. Its NAV is:","Rs. 20.00",["Rs. 20.50","Rs. 19.50","Rs. 82.00"],"(820 - 20) / 40 = Rs. 20.");
+S2(5,"Consider the following statements:","Unit capital of an open-ended scheme varies with purchases and redemptions.","Unit capital is computed by multiplying units by NAV.","I","Unit capital uses face value, not NAV.");
+H(5,"The NAV of an index fund would correctly be stated as:","Rs. 12.3456",["Rs. 12.35","Rs. 12.3","Rs. 12"],"Index, debt, liquid and money market funds: 4 decimal places.");
+AR(5,"Close-ended schemes must be listed on a stock exchange.","Close-ended schemes issue units continuously after the NFO.",2,"A is true; R is false: units are not issued after the NFO.");
+H(5,"For a scheme investing 80 percent or more in overseas funds, the NAV must be uploaded by:","10 a.m. on T+1",["11 p.m. on T","9 a.m. on T+1","5 p.m. on T+1"],"General schemes: 11 p.m. on T; ETCD schemes: 9 a.m. on T+1.");
+S2(5,"Regarding voluntary lock-in or debit freeze of MF folios:","It is offered through MF Central via RTAs.","It is available to all investors irrespective of KYC status.","I","Only KYC compliant investors with valid email and mobile.");
+H(5,"An investor redeems 1,000 units at an NAV of Rs. 25.40. Ignoring loads, the redemption amount is:","Rs. 25,400",["Rs. 10,000","Rs. 2,540","Rs. 2,54,000"],"1,000 x 25.40.");
+H(5,"Which of the following does NOT reduce risk in a mutual fund compared with direct equity investing?","Concentration in a few stocks",["Diversification across securities","Professional fund management","Spread of the portfolio across sectors"],"Concentration increases risk.");
+
+// Ch 6
+S2(6,"Under the SEBI (RTA) Regulations, 2025, consider the following:","The certificate of registration is valid for five years.","An RTA must maintain a net worth of Rs. 50 lakh at all times.","II","The certificate is valid unless suspended or cancelled.");
+S2(6,"Regarding fees under the SEBI (RTA) Regulations, 2025:","The application fee of Rs. 20,000 is refundable on rejection.","An RTA pays Rs. 2,70,000 every three years from the sixth year.","II","The application fee is non-refundable.");
+H(6,"An RTA registered under the 2025 Regulations proposes a change in control. It must:","Obtain prior approval of SEBI",["Inform SEBI within 30 days after the change","Obtain approval of the stock exchange","Seek approval of its largest client company"],"A condition of registration.");
+AR(6,"An RTA shall not act as R&T Agent for an associate company.","Servicing an associate company may give rise to a conflict of interest.",0,"R explains the prohibition.");
+H(6,"Which of the following statements about the Compliance Officer of an RTA is INCORRECT?","Reports non-compliance only to the RTA's Board, annually",["Monitors compliance with the Act and regulations","Reports non-compliance immediately and independently to SEBI","Places periodic reports before the Audit Committee"],"Non-compliance is reported immediately and independently to SEBI.");
+S2(6,"Regarding grievance timelines, consider the following:","Under the RTA Regulations, 2025, grievances are redressed within 21 calendar days.","Under the Intermediaries Regulations, 2008, grievances are redressed within 45 days.","Both","Both statements are correct.");
+H(6,"An RTA's agreement with a client is terminated on 10 March and its certificate is cancelled on 25 March. All records must be handed over to the client by:","10 April",["25 April","10 May","25 March"],"Within one month of termination or cancellation, whichever is earlier.");
+S2(6,"With regard to internal audit of RTAs, consider the following:","The auditor may be a CA, CS, CMA or CISA.","The same auditor may audit the RTA for up to 10 consecutive years.","I","Maximum term is 5 years with a 2-year cooling-off.");
+H(6,"An internal auditor has completed the maximum term with an RTA. The earliest he can be re-appointed is after:","2 years",["1 year","3 years","5 years"],"Cooling-off period of 2 years.");
+H(6,"The internal audit report of an RTA for the financial year ending 31 March must reach the issuer by:","30 June",["30 April","30 September","31 March of the next year"],"Within 3 months from the end of the financial year.");
+AR(6,"A folio once allotted is never re-allotted.","Folio numbers are allotted by the depository.",2,"A is true; R is false: folios are allotted by the RTA in the company's records.");
+S2(6,"Under the SEBI circular of April 20, 2018, consider the following:","Unpaid dividend instruments beyond validity are cancelled and amounts credited back to the issuer.","RTAs may correct folio data directly at the back end in urgent cases.","I","No back-end updation is permitted.");
+H(6,"Enhanced due diligence of a folio is NOT triggered where:","Dividend is unpaid for one year but PAN and bank details are updated",["Dividend is unpaid for three consecutive years","Both PAN and bank details are missing","Dividend is unpaid for four years"],"Triggers: unpaid for at least 3 years, or PAN and bank details not available.");
+S2(6,"Regarding Qualified RTAs, consider the following:","A QRTA services more than 2 crore folios.","QRTAs are also known as Market Infrastructure Institutions.","I","They are called Critical Infrastructure Institutions.");
+H(6,"Under the PFUTP Regulations, an act constitutes fraud:","Whether or not any wrongful gain is made or loss avoided",["Only if wrongful gain is actually made","Only if an investor suffers a loss","Only if it involves listed derivatives"],"Wrongful gain or avoidance of loss is inconsequential.");
+S2(6,"Regarding trading plans under the PIT Regulations, consider the following:","Trading may commence 120 calendar days after public disclosure of the plan.","The plan must cover a minimum trading period of 12 months.","I","The 12-month minimum has been removed.");
+H(6,"Which of the following is NOT a permitted ground for deviating from an approved trading plan?","A sharp rise in the market price",["Permanent incapacity of the insider","Bankruptcy of the insider","Operation of law"],"Only exceptional circumstances are permitted.");
+AR(6,"The structured digital database of UPSI may be outsourced to a third-party vendor.","The regulations require it to be maintained internally with time stamping and audit trails.",3,"A is false; R is true.");
+H(6,"The statutory provision under which the IEPF is utilised is:","Section 125(3) of the Companies Act, 2013",["Section 42 of the Companies Act, 2013","Section 76 of the Companies Act, 2013","Section 12 of the SEBI Act, 1992"],"Section 125(3).");
+H(6,"A company holds its AGM on 20 September. The statement in Form IEPF-2 must be filed by:","19 November",["20 October","20 December","30 September"],"Within 60 days after the AGM.");
+S2(6,"Regarding transfer of shares to IEPF, consider the following:","The transfer is deemed to be a transmission of shares.","Voting rights on such shares are exercised by the IEPF Authority.","I","Voting rights remain frozen till claimed.");
+H(6,"A company changes its Nodal Officer on 1 August. The change must be communicated to the IEPF Authority by:","8 August",["31 August","1 September","15 August"],"Within 7 days, through Form IEPF-2.");
+AR(6,"Senior citizens get priority in the processing of IEPF claims.","The IEPF Authority runs a Special Window Facility for claimants aged 75 years and above.",0,"R explains A.");
+S2(6,"Regarding unlisted company business of RTAs, consider the following:","Existing RTAs must segregate it within 18 months.","Once segregated, it falls under SEBI's jurisdiction.","I","It is not under SEBI's jurisdiction.");
+H(6,"SEBI rejects an application for registration as an RTA. The applicant may apply for reconsideration within:","30 days of receipt of the communication",["7 days","60 days","6 months"],"SEBI communicates rejection within 30 days; reconsideration within 30 days.");
+H(6,"Which of the following is NOT part of the Code of Conduct for RTAs?","Rejecting demat requests when the RTA is short-staffed",["Verifying listing permission before demat","Complying with awards of the Ombudsman","Maintaining backups of electronic records"],"Requests cannot be rejected on flimsy grounds.");
+S2(6,"Under the SEBI (Intermediaries) Regulations, 2008, consider the following:","Registration granted is permanent unless surrendered, suspended or cancelled.","SEBI may inspect an intermediary without giving any notice in all cases.","I","Inspection is after due notice.");
+H(6,"Under the fit and proper criteria, which of the following would disqualify an applicant?","Being declared insolvent",["Being a listed company","Having a large client base","Having a foreign shareholder"],"Also criminal complaints and wilful defaulter status.");
+S2(6,"Under the SEBI (D&P) Regulations, 2018, a participant must:","Maintain continuous electronic connectivity with the depository.","Maintain a single pooled account for all its clients.","I","Separate accounts for each beneficial owner.");
+AR(6,"SEBI can impose monetary penalties on intermediaries.","SEBI was established on April 12, 1992.",1,"Both true, but R does not explain A.");
+S2(6,"Regarding the regulatory sandbox, consider the following:","SEBI may grant exemptions from the RTA Regulations for up to 12 months.","The sandbox allows testing of new products in a live environment.","Both","Both statements are correct.");
+H(6,"Under the RTA Regulations, 2025, SEBI may permit payment of a delayed fee:","Before expiry of six months from the due date, on sufficient cause",["Only within 15 days of the due date","At any time, without limit","Only after cancellation of registration"],"Failure to pay may lead to suspension.");
+H(6,"Which of the following best describes 'Maker-Checker'?","One person processes a transaction and another independently verifies it",["One person processes and approves the same transaction","Transactions are approved only by the client company","All entries are checked only at year-end audit"],"Mandated in all RTA activities.");
+S2(6,"Regarding records under the 2018 strengthening circular, consider the following:","Paid/unpaid dividend reconciliation files are kept for 8 years.","Banks provide this reconciliation annually.","I","Reconciliation is quarterly.");
+H(6,"Which of the following is NOT proposed to be consolidated under the Securities Markets Code Bill, 2025?","Companies Act, 2013",["SEBI Act, 1992","Securities Contracts (Regulation) Act, 1956","Depositories Act, 1996"],"The code consolidates SEBI Act, SCRA and Depositories Act.");
+S2(6,"Regarding the IEPF, consider the following:","It was created by the Reserve Bank of India.","Its Authority was established on 7 September, 2016.","II","IEPF was created by MCA.");
+S2(6,"Regarding the SEBI (RTA) Regulations, 2025, consider the following:","Existing RTAs are deemed registered under the new regulations.","Existing RTAs are exempt from the periodic fee of Rs. 2,70,000.","I","They must pay the fee to keep registration in force.");
+S2(6,"Consider the following statements about SEBI:","SEBI was established under the Companies Act, 2013.","SEBI recognises stock exchanges under the SCRA.","II","SEBI was established under the SEBI Act, 1992.");
+S2(6,"Consider the following about the April 20, 2018 circular:","Folio data corrections need prior approval of the company.","Internal audit of RTAs is to be done once in three years.","I","Internal audit is annual.");
+S2(6,"Regarding UPSI, consider the following:","Changes in key managerial personnel are UPSI.","Proposed mergers and acquisitions are not UPSI.","I","Mergers and acquisitions are UPSI.");
+S2(6,"Regarding the Intermediaries Regulations, 2008, consider the following:","An application for registration must be made only directly to SEBI.","Fit and proper criteria are listed in Schedule III.","Neither","Applications may be routed through exchanges, clearing corporations or depositories; criteria are in Schedule II.");
+
+// Ch 7
+H(7,"Buyback consideration is Rs. 450 crore. The escrow required is:","Rs. 60 crore",["Rs. 112.5 crore","Rs. 45 crore","Rs. 25 crore"],"25% of 100 = 25, plus 10% of 350 = 35; total Rs. 60 crore.");
+H(7,"Paid-up capital and free reserves of a company are Rs. 800 crore. A buyback through the open market route must be:","Less than Rs. 120 crore",["Up to Rs. 200 crore","Up to Rs. 80 crore","Up to Rs. 400 crore"],"Less than 15 percent.");
+S2(7,"Regarding buyback approvals, consider the following:","A buyback of up to 10 percent may be approved by the Board alone.","A buyback of 22 percent requires a special resolution.","Both","Both statements are correct.");
+AR(7,"An offer for sale does not increase the share capital of a company.","In an offer for sale, existing shareholders sell their shares and receive the proceeds.",0,"R explains A.");
+S2(7,"Regarding IPO eligibility under ICDR, consider the following:","Net tangible assets of at least Rs. 3 crore in each of the preceding three full years are required.","Up to 75 percent of net tangible assets may be held in monetary assets.","I","Not more than 50 percent may be monetary assets.");
+H(7,"An issuer does not meet the profitability track record. It may still make an IPO if:","It follows book building and allots at least 75 percent of the net offer to QIBs",["It follows fixed price and allots 50 percent to retail","Its promoters contribute 50 percent","It obtains approval of RBI"],"Full refund if the QIB allocation is not met.");
+H(7,"An IPO's proceeds are mainly meant for capital expenditure. The lock-in on minimum promoter contribution and on excess promoter holding are respectively:","3 years and 1 year",["18 months and 6 months","3 years and 6 months","1 year and 6 months"],"Normal case: 18 months and 6 months.");
+S2(7,"Regarding small shareholders in a tender offer buyback:","A small shareholder holds shares worth not more than Rs. 2 lakh on the record date.","At least 25 percent of the buyback is reserved for them.","I","Reservation is 15 percent or entitlement, whichever is higher.");
+AR(7,"A company cannot buy back its shares through a privately negotiated deal.","Negotiated deals are permitted if approved by a special resolution.",2,"A is true; R is false.");
+H(7,"Which of the following statements about open market buyback via the stock exchange is INCORRECT?","It may remain open for any period decided by the Board",["It must open within 4 working days of the public announcement","It must close within 66 working days","It must be less than 15 percent of paid-up capital and free reserves"],"It must close within 66 working days.");
+S2(7,"Regarding minimum promoter contribution, consider the following:","Promoters must hold at least 20 percent of post-issue capital.","A shortfall may be met by AIFs, FVCIs and others up to 10 percent of post-issue capital.","Both","Both statements are correct.");
+H(7,"A tender offer buyback closes on a Friday. Payment of consideration must be completed within:","5 working days",["2 working days","10 working days","30 days"],"Within 5 working days of closure.");
+S2(7,"Regarding buyback, consider the following:","Only fully paid-up shares can be bought back.","A buyback must be completed within two years of the resolution.","I","Within one year.");
+S2(7,"Regarding the certificate of destruction in a buyback, consider the following:","It is verified by the registrar, two directors and the secretarial auditor.","It is furnished to SEBI within 30 working days of extinguishment.","I","Within 7 working days.");
+
+// Ch 8
+H(8,"A listed company makes a QIP of Rs. 400 crore. The minimum number of allottees is:","5",["2","10","50"],"More than Rs. 250 crore: at least 5 allottees.");
+S2(8,"Regarding private placement under Section 42, consider the following:","Subscription money may be received in cash.","Allotment must be made within 60 days of receipt of application money.","II","Cash payment is not permitted.");
+AR(8,"Preferential allotment to promoters is locked in for 18 months from trading approval.","A QIP cannot be made by an unlisted company.",1,"Both true but unrelated.");
+H(8,"In a 4:7 rights issue, a shareholder holding 1,400 shares is entitled to:","800 shares",["2,450 shares","700 shares","400 shares"],"1,400 x 4/7 = 800.");
+S2(8,"Regarding QIP, consider the following:","A QIP can be made by an unlisted company.","No single allottee can be allotted more than 50 percent of the issue.","II","The issuer must be listed for at least one year.");
+H(8,"Which of the following is NOT a feature of ESOPs?","Exercise of options before the minimum vesting period of 1 year",["Vesting of options over a period","A specified exercise price","Lapse of options after the exercise period"],"Minimum vesting period is 1 year.");
+S2(8,"Regarding rights issues, consider the following:","Payment for rights applications is through ASBA only.","Rights entitlements cannot be traded.","I","REs are tradable on exchanges.");
+
+// Ch 9
+H(9,"The net offer of a book built IPO is 20,00,000 shares. The maximum QIB portion and the allocation to mutual funds within it are:","10,00,000 and 50,000 shares",["10,00,000 and 1,00,000 shares","7,00,000 and 50,000 shares","3,00,000 and 15,000 shares"],"QIB not more than 50 percent; 5 percent of that for MFs.");
+H(9,"The net offer is 20,00,000 shares. The minimum NII portion and its sub-portion for applications above Rs. 10 lakh are:","3,00,000 and 2,00,000 shares",["3,00,000 and 1,00,000 shares","7,00,000 and 2,00,000 shares","2,00,000 and 1,00,000 shares"],"NII not less than 15 percent; two-thirds for applications above Rs. 10 lakh.");
+H(9,"The retail portion is 7,00,000 shares and the minimum bid lot is 100 shares. The maximum number of retail allottees is:","7,000",["70,000","700","3,500"],"7,00,000 / 100 = 7,000.");
+S2(9,"Regarding anchor investors, consider the following:","An anchor investor must apply for at least Rs. 10 crore.","All shares allotted to anchors are locked in for 90 days.","I","50 percent for 30 days and 50 percent for 90 days.");
+H(9,"The floor price of a book built issue is Rs. 250. The maximum permissible cap of the price band is:","Rs. 300",["Rs. 275","Rs. 312.50","Rs. 500"],"Cap cannot exceed 120 percent of the floor.");
+S2(9,"Regarding minimum subscription, consider the following:","If 90 percent of the net offer is not subscribed, monies are refunded or unblocked within 4 days.","Minimum subscription applies to an offer for sale.","I","It does not apply to an offer for sale.");
+AR(9,"The Stabilising Agent can only buy shares in the market during stabilisation.","Its role is to support the price if it falls below the issue price after listing.",0,"R explains A.");
+H(9,"The issue size is 50 lakh shares. The maximum over-allotment under the Green Shoe Option is:","7.5 lakh shares",["5 lakh shares","12.5 lakh shares","10 lakh shares"],"15 percent of issue size.");
+S2(9,"Regarding the Green Shoe Option, consider the following:","Shares may be lent by any shareholder holding more than 1 percent.","Stabilisation is available for 30 days from listing.","II","Lender must hold more than 5 percent.");
+H(9,"The Stabilising Agent bought 3 lakh shares against 7.5 lakh over-allotted. The remaining 4.5 lakh shares are:","Allotted by the company to the lender at the issue price",["Purchased from the market by the RTA","Cancelled from the issue","Returned to SEBI"],"Shortfall met by fresh allotment at issue price.");
+H(9,"Which of the following documents is filed with SEBI and does NOT disclose the issue price?","Draft Red Herring Prospectus",["Final Prospectus","Basis of allotment","Allotment advertisement"],"DRHP has all disclosures except price.");
+S2(9,"Regarding SME IPOs, consider the following:","Observations on the offer document are issued by SEBI.","Market making is mandatory.","II","Observations are issued by the stock exchange.");
+H(9,"An SME IPO of Rs. 40 crore is underwritten as required. The minimum underwriting by lead managers on their own account is:","Rs. 6 crore",["Rs. 4 crore","Rs. 40 crore","Rs. 10 crore"],"100 percent underwritten, of which 15 percent by lead managers.");
+AR(9,"Only retail individual investors may bid at the cut-off price.","Retail investors cannot modify their bids once placed.",2,"A is true; R is false: bids can be modified till the cut-off time.");
+H(9,"Post-issue capital at offer price is Rs. 5,000 crore. The minimum public offer and the timeline to reach 25 percent public shareholding are:","10 percent; within 3 years of listing",["25 percent; at listing","10 percent; within 5 years","15 percent; within 3 years"],"Above Rs. 4,000 crore.");
+S2(9,"Regarding NII allocation, consider the following:","One-third of the NII portion is for applications above Rs. 2 lakh up to Rs. 10 lakh.","Allotment to an NII below the minimum application size is permitted.","I","Allotment cannot be less than the minimum application size.");
+H(9,"Which of the following is NOT a pre-issue responsibility of the lead manager?","Approving the basis of allotment in place of the designated stock exchange",["Appointing the RTA and bankers","Filing the DRHP with SEBI","Signing the due diligence certificate"],"Basis is approved with the designated stock exchange.");
+S2(9,"Regarding the minimum number of allottees, consider the following:","No allotment is made in a main board IPO if allottees are fewer than 1,000.","For SME IPOs the minimum is 50 allottees.","I","SME minimum is 200.");
+AR(9,"A book built issue may discover a price below the cap of the price band.","The cut-off is the price at which cumulative demand equals the shares on offer.",0,"R explains A.");
+S2(9,"Regarding offer documents, consider the following:","The RHP is filed with the Registrar of Companies.","The DRHP is filed with the Reserve Bank of India.","I","DRHP is filed with SEBI.");
+S2(9,"Regarding underwriting, consider the following:","In soft underwriting, the underwriter subscribes immediately if the issue is undersubscribed.","Underwriting is optional for main board public issues.","Neither","Hard underwriting is the immediate subscription; underwriting is mandatory.");
+
+// Ch 10
+S2(10,"Regarding ASBA, consider the following:","The bid amount is debited from the investor's account at the time of bidding.","The Registrar is the nodal agency for ASBA complaints.","II","Funds are only blocked at bidding.");
+H(10,"Which of the following is NOT a post-issue responsibility of the RTA?","Signing the due diligence certificate filed with SEBI",["Preparing the Return of Allotment for the RoC","Sending CAN to anchor investors","Instructing depositories on lock-in"],"Due diligence is signed by the lead manager.");
+H(10,"An issue closes on a Wednesday (T). UPI mandates of unsuccessful applicants must be unblocked by:","Friday 4 p.m. (T+2)",["Thursday 4 p.m. (T+1)","Monday (T+3)","Wednesday 9 p.m. (T)"],"Unblocking by 4 p.m. on T+2.");
+H(10,"An issue closes on a Tuesday (T) and there are no holidays. Trading in the shares commences on:","Friday",["Wednesday","Thursday","Monday"],"Listing and trading on T+3.");
+AR(10,"A Sponsor Bank is essential for UPI-based applications in public issues.","It acts as a conduit between stock exchanges and NPCI for pushing mandate requests.",0,"R explains A.");
+S2(10,"Regarding Payments Banks as Bankers to an Issue, consider the following:","They may register with prior approval of RBI.","They may block funds from current accounts of investors.","I","Blocking is only through savings accounts.");
+H(10,"On day 2 of an issue, bidding closes at 5 p.m. Details of cancelled bids must be sent by the Registrar to SCSBs by:","6 p.m. the same day",["9 a.m. the next day","The close of the issue","Within 24 hours"],"Within 60 minutes of bid closure.");
+S2(10,"Regarding the Registrar's rejection list, consider the following:","It is prepared from electronic bid files received from the exchanges.","It is prepared only after examining physical application forms.","I","It is prepared without reference to physical forms.");
+H(10,"Multiple applications in a public issue are identified by the Registrar on the basis of:","Common PAN",["Common address","Common bank branch","Common broker"],"After reconciling exchange, SCSB and Sponsor Bank data.");
+S2(10,"The pre-issue role of the RTA includes:","Obtaining the ISIN through the depositories.","Opening the share escrow account for selling shareholders before the RHP.","Both","Both statements are correct.");
+H(10,"Under the T+3 timetable, final certificates from the Sponsor Bank for UPI bids are due on T before:","9:30 p.m.",["7:30 p.m.","5:00 p.m.","Midnight"],"SCSBs and syndicate ASBA: before 7:30 p.m.");
+S2(10,"Regarding UPI in public issues, consider the following:","It is available for individual bids up to Rs. 5 lakh.","It was introduced from January 1, 2016.","I","Introduced from January 1, 2019.");
+H(10,"Under the T+3 timetable, the corporate action for credit of shares must be completed by:","6 p.m. on T+2",["9 p.m. on T+1","2 p.m. on T+3","Noon on T+2"],"Initiated before 2 p.m. and completed by 6 p.m. on T+2.");
+S2(10,"Regarding Bankers to an Issue, consider the following:","They are appointed by SEBI for every issue.","They are registered under the SEBI (Bankers to an Issue) Regulations, 1994.","II","They are appointed by the issuer.");
+
+// Ch 11
+S2(11,"Regarding ISIN, consider the following:","It is a 12-character code beginning with the country code.","Its last character is a check digit.","Both","Both statements are correct.");
+S2(11,"Under the tripartite agreement, consider the following:","The depository allots the ISIN.","The RTA must complete remat within 15 days.","I","Remat must be completed within 30 days.");
+AR(11,"Demat shares carry no distinctive numbers in the investor's account.","Dematerialised securities are fungible.",0,"Fungibility explains the absence of distinctive numbers.");
+H(11,"Which of the following is NOT an advantage of holding securities in demat form?","Higher stamp duty on transfers",["Elimination of bad deliveries","Faster settlement","Easier pledge and nomination"],"Demat reduces transaction costs including stamp duty.");
+S2(11,"Regarding Designated Depository Participants, consider the following:","They grant registration to FPIs on behalf of SEBI.","An FPI's DDP and custodian may be different entities.","I","They must be the same entity.");
+H(11,"For which category of DP has SEBI prescribed a minimum net worth?","R&T Agents",["Scheduled banks","Public financial institutions","Clearing corporations"],"Stock brokers, NBFCs and R&T Agents.");
+AR(11,"The investor is the registered owner of demat securities in the issuer's records.","On demat, the depository's name replaces the investor's in the Register of Members.",3,"A is false; R is true.");
+H(11,"The PAN of a demat holder is not linked with Aadhaar. The consequence is that the account is:","Treated as KYC non-compliant, with debit and credit restrictions",["Closed and shares transferred to IEPF","Rematerialised automatically","Unaffected"],"PAN becomes inoperative.");
+S2(11,"Regarding FPIs, consider the following:","Registration fees are paid for every three-year period.","FPIs with invalid registration must sell within 180 days.","I","They may sell within 360 days.");
+H(11,"Which of the following is NOT eligible for admission to a depository?","Bearer cheques",["Units of mutual funds","Commercial papers","Electronic Gold Receipts"],"Cheques are not securities.");
+S2(11,"Regarding beneficial owners, consider the following:","They receive corporate benefits like dividend and bonus.","They are recorded as registered owners in the issuer's Register of Members.","I","The depository is the registered owner.");
+AR(11,"Physical certificates received for demat are destroyed by the RTA.","On remat, the original destroyed certificates are reissued to the investor.",2,"A is true; R is false: remat issues new certificates.");
+S2(11,"Regarding Depository Participants, consider the following:","DPs are appointed by depositories with SEBI approval.","Stock brokers cannot act as DPs.","I","Stock brokers are eligible.");
+S2(11,"Regarding depositories, consider the following:","The Depositories Act was passed in 1992.","There are three depositories operating in India.","Neither","Act passed in 1996; two depositories (NSDL and CDSL).");
+
+// Ch 12
+S2(12,"Regarding dematerialisation, consider the following:","Stamp duty is payable on conversion of physical shares into demat form.","The RTA must confirm demat within 15 days of receiving the physical request.","II","No stamp duty on demat.");
+H(12,"A DRN is generated on 1 March. The physical documents reach the RTA on 5 April. The RTA:","May reject the request as the documents arrived after 30 days",["Must process it within 15 days","Must forward it to SEBI","Must issue a duplicate certificate"],"Delay beyond 30 days is a ground for rejection.");
+AR(12,"The RTA verifies that the DRN on the physical DRF matches the electronic request.","Demat is confirmed only when the request is received in both electronic and physical form.",0,"R explains A.");
+H(12,"Which of the following is NOT a valid ground for rejecting a demat request?","The investor's DP is located in a different city from the RTA",["The certificates are reported stolen","The name on the certificates differs from the DRF","The signature does not match RTA records"],"Location is irrelevant.");
+S2(12,"Regarding rematerialisation, consider the following:","The investor submits the RRF directly to the RTA.","The RTA affixes revenue stamps and the common seal on new certificates.","II","The RRF is submitted to the DP.");
+H(12,"A physical remat request is received by the RTA on 1 July. It must be completed by:","31 July",["16 July","21 July","31 August"],"Within 30 days.");
+H(12,"Under remat, distinctive numbers for the new certificates are taken from:","Shares standing in the depository's folio",["Fresh unissued capital","The IEPF Authority's folio","Promoters' locked-in shares"],"From shares already dematerialised.");
+S2(12,"Regarding the Delivery Instruction Slip, consider the following:","Debits to a BO account require a DIS or equivalent instruction.","A DIS signed only by the first holder of a joint account is valid.","I","All holders must sign.");
+AR(12,"Off-market transfers do not involve the clearing corporation.","In off-market trades, cash is settled outside the depository system.",1,"Both true; R does not explain A.");
+H(12,"Raj sells shares on the exchange on a Thursday (no holidays). Under T+1, pay-in takes place on:","Friday",["Thursday","Monday","Tuesday"],"T+1.");
+S2(12,"Regarding inter-depository transfers, consider the following:","They are possible only if the security is admitted in both depositories.","Instructions between depositories are exchanged once a week.","I","Instructions are exchanged online each day.");
+H(12,"A beneficial owner wishes to change the bank account for dividend credit on her demat shares. She should approach:","Her Depository Participant",["The RTA of the company","The issuer company","SEBI"],"Demat KYC changes go through the DP.");
+AR(12,"Entitlement to a corporate action depends on holdings as on the record date.","The RTA downloads the BenPos from depositories as on the record date.",0,"R explains how A is applied.");
+H(12,"A Board approves a bonus issue on Monday 1 September (no holidays). The application for in-principle approval must be made by:","Monday 8 September",["Tuesday 2 September","Monday 15 September","Wednesday 1 October"],"Within 5 working days of the Board meeting.");
+H(12,"Under the bonus framework, if the record date is a Wednesday (no holidays), bonus shares become tradable on:","Friday",["Thursday","Wednesday","Monday"],"Trading on T+2.");
+S2(12,"Regarding ISINs, consider the following:","A company may have separate ISINs for fully paid and partly paid equity shares.","Each bonus issue requires a temporary ISIN.","I","Temporary ISIN requirement for bonus is exempted.");
+H(12,"In a merger, shares of the acquiring company are admitted to a depository but those of the acquired company are not. Investors of the acquired company:","Get the option to receive shares in electronic form",["Must receive physical shares only","Receive cash only","Cannot participate"],"As per the depository merger scenarios.");
+AR(12,"Daily reconciliation between RTA and depository records is mandatory.","Reconciliation is carried out only once a month.",2,"A is true; R is false.");
+H(12,"Issued capital is 50,000 shares. Physical holding in the ROM is 12,000 and NSDL holds 30,000 (no pending requests). The CDSL holding should be:","8,000",["20,000","38,000","12,000"],"50,000 - 12,000 - 30,000.");
+S2(12,"Regarding the DN database, consider the following:","It is maintained by the issuer company.","It was recommended by the Depository System Review Committee.","II","It is maintained by the depositories.");
+H(12,"Folio 101 holds certificate C-50 (DN 1001-1500). A duplicate is issued. After this the record shows:","Folio 101, a new certificate number, DN 1001-1500",["A new folio, certificate C-50, DN 1001-1500","Folio 101, certificate C-50, new DNs","A new folio, a new certificate, new DNs"],"Only the certificate number changes.");
+H(12,"Certificate C-50 (DN 1001-1500) in folio 101 is transmitted in full to a legal heir in physical mode. After this the record shows:","A new folio, certificate C-50, DN 1001-1500",["Folio 101, a new certificate, DN 1001-1500","A new folio, a new certificate, new DNs","Folio 101, certificate C-50, new DNs"],"Transmission is recorded like a transfer.");
+H(12,"Certificate C-50 (DN 1001-1500) is dematerialised. In the ROM, its DNs:","Move to the depository's folio",["Remain in the investor's folio","Are cancelled permanently","Move to the IEPF folio"],"The investor's folio ceases to be valid.");
+S2(12,"Regarding remat and distinctive numbers, consider the following:","On remat, a new folio and a new certificate number are allotted.","The DNs remain within the depository's folio after remat.","I","DNs move out of the depository's folio.");
+AR(12,"Rights entitlements on IEPF shares are not credited to the IEPF account.","All other corporate benefits on IEPF shares are credited to the IEPF account.",1,"Both true; R does not explain A.");
+H(12,"Which of the following statements regarding shares transferred to IEPF is INCORRECT?","They are excluded while computing voting rights under SAST",["Their voting rights are frozen","Bonus on them is credited to the IEPF account","Their transfer is treated as transmission"],"They are not excluded for SAST.");
+S2(12,"Regarding IEPF claims, consider the following:","The claimant files Form IEPF-5 online.","Refunds are made to any bank account named by the claimant.","I","Refund only to an Aadhaar-linked bank account.");
+S2(12,"Regarding demat at the time of an IPO, consider the following:","The depository assigns the ISIN.","The investor's name is entered in the ROM as registered holder.","I","The depository is entered as registered holder.");
+S2(12,"Regarding rights issue processing, consider the following:","The RTA calculates entitlements from the BenPos.","Credit of rights shares is effected through a debit corporate action.","I","Through a credit corporate action.");
+S2(12,"Regarding merger processing, consider the following:","Activities are carried out by the RTA of the transferor company.","If both companies are admitted, shares are exchanged electronically.","II","By the RTA of the transferee company.");
+AR(12,"Bonus shares are credited directly to the permanent ISIN.","The temporary ISIN requirement for bonus issues has been exempted with effect from October 1, 2024.",0,"R explains A.");
+S2(12,"Regarding DRF storage, consider the following:","DRFs must be preserved for at least 8 years.","Certificates destroyed after demat are recorded in the Register of Members.","I","Recorded in the Register of Destroyed Certificates.");
+H(12,"Which of the following is NOT part of the BO information provided by depositories to the RTA?","Annual income of the beneficial owner",["Minor indicator / date of birth","Bank details","Nominee details"],"Income is not captured.");
+H(12,"A demat request is received physically on 2 May and is in order. The RTA must confirm it by:","17 May",["2 June","9 May","23 May"],"Within 15 days.");
+S2(12,"Regarding standing instructions, consider the following:","A standing instruction allows credits without a receipt instruction each time.","A standing instruction also allows debits without a DIS.","I","Debits always need a delivery instruction.");
+S2(12,"Regarding T+1 settlement, consider the following:","It applies to off-market transfers.","It was fully implemented from 1 April 2019.","Neither","It applies to market trades; implemented from 27 January 2023.");
+S2(12,"Regarding reconciliation, consider the following:","Discrepancies can be carried forward to the next month.","The depository's holding alone must equal the total issued capital.","Neither","Discrepancies are resolved before any other activity; physical holdings are also part of issued capital.");
+S2(12,"Regarding transfers to IEPF, consider the following:","Shares must be credited within 30 days of becoming due.","The statement to the Authority is in Form IEPF-5.","I","Form IEPF-4.");
+
+// Ch 13
+H(13,"Lost shares are worth Rs. 8 lakh. Which of the following is NOT required for a duplicate certificate?","FIR and newspaper advertisement",["Affidavit-cum-indemnity on stamp paper","Form ISR-4","KYC documents of the holder"],"FIR and ad are required only above Rs. 10 lakh.");
+H(13,"Lost shares are worth Rs. 9,500. The affidavit-cum-indemnity may be executed:","On plain paper without notarisation",["On non-judicial stamp paper with notarisation","On court fee stamp paper","It is not required at all"],"Up to Rs. 10,000: plain paper.");
+S2(13,"Regarding duplicate certificates, consider the following:","A surety is required along with the indemnity.","The stock exchange must be informed within 2 days.","II","No surety is required.");
+H(13,"An investor reports loss of certificates but does not submit an FIR. The stop transfer is removed:","After 21 days from the notice of loss",["After 15 days","After 30 days","Never, without a court order"],"FIR must be submitted within 21 days.");
+S2(13,"Regarding transfer of physical securities, consider the following:","Form SH-4 is valid for 60 days from execution.","Transmission of physical securities is barred after April 1, 2019.","I","Transmission and transposition are permitted.");
+AR(13,"Investors may continue to hold physical shares after April 1, 2019.","The April 1, 2019 restriction applies to transfers and not to holding.",0,"R explains A.");
+H(13,"A transfer deed executed on 1 January is lodged on 15 March. The RTA should:","Treat it as invalid, being beyond 60 days from execution",["Process it within 15 days","Process it within 30 days","Forward it to SEBI"],"SH-4 is valid for 60 days.");
+S2(13,"Regarding the Letter of Confirmation, consider the following:","It was valid for 120 days.","It continues to be issued for requests received after April 2, 2026.","I","LOC was abolished from April 2, 2026.");
+H(13,"A Client Master List dated 1 January is submitted with a service request on 15 March. The RTA should:","Call for a fresh CML, as it is older than 2 months",["Accept it","Accept it only for transmission","Accept it if attested by a notary"],"CML must not be older than 2 months.");
+S2(13,"Regarding change of address, consider the following:","The request must be signed by all joint holders.","The address proof must not be older than 3 months.","II","Signed by the first holder only.");
+H(13,"An address change request carries a signature that matches RTA records. The RTA:","Need not wait 15 days for objections",["Must still wait 15 days","Must wait 30 days","Must forward it to the DP"],"The 15-day window is skipped if signature matches.");
+AR(13,"RTAs cannot insist on notarised documents for KYC updates.","Indemnity may be sought for transmission and duplicate requests.",1,"Both true; R does not explain A.");
+H(13,"For which of the following may an RTA insist on an indemnity?","Issue of duplicate securities",["Change of address","Updation of PAN","Change of bank details"],"Only transmission and duplicate requests.");
+S2(13,"Regarding nomination, consider the following:","Form SH-13 is used to register a nomination.","Form SH-14 is used to opt out of nomination.","I","Opt-out is through ISR-3; SH-14 changes or cancels.");
+H(13,"A sole holder without a nominee dies leaving physical shares worth Rs. 9,000. His wife claims transmission. She may use:","Quick Transmission Processing",["Probate of will only","Succession certificate only","No route without a court decree"],"QTP: physical up to Rs. 10,000, immediate relatives.");
+H(13,"A deceased holder's brother claims demat shares worth Rs. 25,000 under QTP. The claim is:","Not eligible, as QTP is only for immediate relatives",["Eligible, as the value is below Rs. 30,000","Eligible only with probate","Eligible after one year"],"Immediate relatives: parents, spouse, children, parents-in-law.");
+H(13,"Physical shares worth Rs. 8 lakh are claimed by legal heirs where there is no nominee. Under the simplified route they submit:","Notarised indemnity bond and affidavit-cum-NOC from all legal heirs",["Probate of will mandatorily","Succession certificate mandatorily","Only the death certificate"],"Simplified route up to Rs. 10 lakh for physical.");
+S2(13,"Under the revised transmission framework, consider the following:","Probate of will is mandatory.","A death certificate with QR code is acceptable.","II","Probate is no longer mandatory.");
+H(13,"Complete documents for transmission of demat securities are received on 10 June. Transmission must be completed by:","17 June",["1 July","10 July","20 June"],"Within 7 days for demat.");
+AR(13,"Intimation of address change is sent only to the new address.","A 15-day window is given for objections.",3,"A is false: intimation goes to both old and new address. R is true.");
+H(13,"As per the RTA Investor Charter, which pair of timelines is CORRECT?","Transposition 15 days; change of name 30 days",["Transposition 30 days; change of name 15 days","Transposition 21 days; change of name 21 days","Transposition 7 days; change of name 15 days"],"Transposition 15; name, signature, nomination 30.");
+S2(13,"Regarding AGM processes, consider the following:","Annual reports by email go at least 21 days before the AGM.","Notices by post go at least 25 days before the AGM.","Both","Both statements are correct.");
+H(13,"An AGM is on Friday 25 September at 11 a.m. Remote e-voting must close at:","5 p.m. on Thursday 24 September",["11 a.m. on 25 September","Midnight on 24 September","5 p.m. on 25 September"],"5 p.m. on the day before the AGM.");
+H(13,"An AGM is at 11 a.m. on a Monday. The latest time for receipt of proxies is:","11 a.m. on Saturday",["11 a.m. on Sunday","5 p.m. on Friday","9 a.m. on Monday"],"At least 48 hours before the meeting.");
+S2(13,"Regarding Form 121, consider the following:","It replaces Forms 15G and 15H.","The payer allots a Unique Identification Number to each declaration.","Both","Both statements are correct.");
+H(13,"Which of the following is NOT a service request for which securities are issued only in demat form?","Change of address",["Transposition","Issue of duplicate certificate","Consolidation of folios"],"Address change is a KYC update.");
+S2(13,"Regarding signature mismatch, consider the following:","For a major mismatch, banker's attestation in Form ISR-2 may be submitted.","For a minor mismatch, the RTA processes the request immediately without intimation.","I","A 15-day objection window applies.");
+S2(13,"Regarding KYC for physical holders, consider the following:","From January 1, 2022, requests are not processed until PAN, KYC and nomination are received.","Aadhaar copies shared with the RTA should be unmasked.","I","First 8 digits should be masked.");
+S2(13,"Regarding the stop transfer process, consider the following:","Stop transfer may be noted on a court restraining order.","If supporting documents are received within 15 days, the request is processed.","I","If documents are received, the request is not processed.");
+S2(13,"Regarding transmission thresholds, consider the following:","The simplified threshold for physical securities is Rs. 5 lakh.","The simplified threshold for demat securities is Rs. 15 lakh.","Neither","Revised to Rs. 10 lakh and Rs. 30 lakh.");
+
+// Ch 14
+H(14,"Which of the following statements about the secondary market is INCORRECT?","Sale proceeds are received by the issuing company",["It provides liquidity","It aids price discovery","It disseminates information"],"Proceeds go to the seller.");
+S2(14,"Regarding the trading system, consider the following:","Trades are anonymous and matched on price-time priority.","The stock exchange itself guarantees settlement of trades.","I","The clearing corporation guarantees settlement.");
+H(14,"Post-issue capital at offer price is Rs. 50,000 crore. The minimum public shareholding at listing may be:","10 percent",["25 percent","35 percent","5 percent"],"Above Rs. 4,000 crore and below Rs. 1 lakh crore.");
+S2(14,"Under LODR, consider the following:","The Compliance Officer must be a qualified Company Secretary.","An entity with more than 1 lakh holders may manage transfers in-house without registration.","I","It must register as Category II STA or appoint an RTA.");
+H(14,"A board meeting to consider results is on Friday 14 November (no holidays). Prior intimation must reach the exchange by:","Tuesday 11 November",["Wednesday 12 November","Thursday 13 November","Friday 7 November"],"2 working days, excluding the date of intimation and of the meeting.");
+H(14,"A board meeting ends at 1 p.m. on a trading day. A material decision taken must be disclosed to the exchanges within:","30 minutes",["3 hours","12 hours","24 hours"],"30 minutes from closure of the meeting.");
+H(14,"The quarter ends on 30 June. The shareholding pattern must be filed by:","21 July",["30 July","14 August","15 July"],"Within 21 days of quarter end.");
+H(14,"For the quarter ending 31 March (last quarter), financial results must be submitted within:","60 days",["45 days","30 days","90 days"],"Other quarters: 45 days.");
+S2(14,"Regarding LODR timelines, consider the following:","Investor complaint statements are filed within 30 days of quarter end.","Corporate governance reports are filed within 45 days of quarter end.","I","Corporate governance report: 30 days.");
+AR(14,"A company with 1.5 lakh shareholders handling transfers in-house must register as a Category II STA.","LODR Regulation 7 requires this when holders exceed 1 lakh, unless an RTA is appointed.",0,"R explains A.");
+H(14,"A listed entity signs an agreement with a new share transfer agent on 1 May. The exchange must be informed by:","8 May",["31 May","2 May","15 May"],"Within 7 days.");
+S2(14,"Under the LODR master circular effective January 30, 2026, consider the following:","100 percent of promoter holding must be in demat form.","At least 25 percent of non-promoter holding must be in demat form.","I","At least 50 percent of non-promoter holding.");
+S2(14,"Regarding investors, consider the following:","Overseas corporate bodies may invest in Indian securities markets.","QFIs were allowed to invest directly from January 1, 2012.","II","OCBs are prohibited.");
+
+// Ch 15
+S2(15,"Regarding First Time Right, consider the following:","It originates from Six Sigma.","It requires multiple points of contact for each investor.","I","It requires a single point of contact.");
+AR(15,"Client servicing staff need extensive product knowledge.","First Time Right requires accurate information at the first contact.",0,"R explains A.");
+H(15,"An investor is visibly upset over a delay. Which response best reflects empathy?","Acknowledge the inconvenience and understand the issue from his view",["Explain the company's internal constraints first","Ask him to send a written complaint","Transfer the call to another department"],"Empathy is putting yourself in the investor's shoes.");
+H(15,"Which of the following is NOT one of the principles of client servicing in the workbook?","Aggression",["Patience","Compassion","Liaising"],"Attitude, patience, empathy, compassion, liaising, communication.");
+S2(15,"Regarding grievance escalation, consider the following:","An investor must first approach the entity concerned.","An investor may go directly to SMARTODR without approaching the entity.","I","ODR is available after exhausting other options.");
+H(15,"A complaint is received by an RTA on 1 March. It must be redressed by:","22 March",["15 March","1 April","16 April"],"Within 21 days of receipt.");
+H(15,"Conciliation under ODR is not concluded within 21 days. With the consent of both parties, it may be extended by:","10 days",["21 days","30 days","60 days"],"Arbitration: 30 days, extendable by 30.");
+S2(15,"Regarding online dispute resolution, consider the following:","A market participant may initiate ODR after due notice to the investor.","An appeal against an appellate arbitrator's award lies with SEBI.","I","Appeal lies with the High Court.");
+H(15,"RTA complaints data for the month of October must be on its website by:","7 November",["31 October","15 November","30 November"],"By the 7th of the succeeding month.");
+AR(15,"Feedback should be sought after the problem is resolved.","Feedback should be collected before the investor explains the problem.",2,"A is true; R is false.");
+S2(15,"Regarding SOP rules, consider the following:","High-value lodgements are verified first by the Team Leader or Management.","Documents may be shredded on oral instruction of the investor.","I","Shredding needs written approval of the client company.");
+H(15,"Which of the following violates the 'Don'ts' of client servicing?","Sharing an investor's holding details with another investor",["Using the First Time Right approach","Rendering fair and unbiased service","Collecting contact details for future communication"],"Confidential information must not be divulged.");
+H(15,"Which feature was introduced with SCORES 2.0?","Auto-routing and auto-escalation of complaints",["Mandatory physical hearings","Complaints only through brokers","Annual closure of complaints"],"Introduced in April 2024 with oversight by Designated Bodies.");
+S2(15,"Regarding communication with investors, consider the following:","Use of positive language is recommended.","Interrupting the investor to save time is recommended.","I","Listen without interrupting.");
+S2(15,"Regarding ODR timelines, consider the following:","Arbitration must conclude within 21 days.","Conciliation may be extended by 30 days.","Neither","Arbitration 30 (+30) days; conciliation 21 (+10) days.");
+// balance: Both / Neither
+S2(12,"Regarding rematerialisation, consider the following:","The RRF is submitted by the investor to the DP.","Remat is completed within 30 days of receipt of the physical RRF.","Both","Both statements are correct.");
+S2(12,"Regarding the Delivery Instruction Slip, consider the following:","The DIS carries the pre-printed name of the holder and DP ID.","For a market trade, the receiver details are the clearing member ID.","Both","Both statements are correct.");
+S2(12,"Regarding transfer of demat shares to IEPF, consider the following:","A newspaper notice is published in English and a regional language.","The company informs the depositories by way of a corporate action.","Both","Both statements are correct.");
+S2(6,"Regarding obligations of an RTA, consider the following:","Books and records are kept for at least 8 years.","Disputes with clients may be resolved through mediation, conciliation and arbitration.","Both","Both statements are correct.");
+S2(6,"Regarding insider trading plans, consider the following:","Trading plans are approved by the Compliance Officer.","Trading plans may specify price limits for buy and sell trades.","Both","Both statements are correct.");
+S2(13,"Regarding duplicate certificates, consider the following:","For lost securities worth up to Rs. 10 lakh, no FIR is required.","The request for a duplicate is made in Form ISR-4.","Both","Both statements are correct.");
+S2(13,"Regarding Quick Transmission Processing, consider the following:","The limit for physical securities is Rs. 10,000.","It is available only to immediate relatives of the deceased.","Both","Both statements are correct.");
+S2(9,"Regarding the price band in book building, consider the following:","The cap cannot exceed 120 percent of the floor price.","A revision of the band extends the issue period by 3 days.","Both","Both statements are correct.");
+S2(10,"Regarding ASBA, consider the following:","It has been mandatory for all investors since January 1, 2016.","Designated branches of an SCSB are controlled by a Controlling Branch.","Both","Both statements are correct.");
+S2(15,"Regarding First Time Right, consider the following:","It requires extensive product knowledge.","It originates from Six Sigma.","Both","Both statements are correct.");
+S2(14,"Regarding LODR timelines, consider the following:","The shareholding pattern is filed within 21 days of quarter end.","Results for the last quarter are filed within 60 days.","Both","Both statements are correct.");
+S2(12,"Regarding dematerialisation, consider the following:","Demat must be completed within 30 days of receipt of the physical request.","DRFs must be preserved for 5 years.","Neither","Demat: 15 days; DRFs: at least 8 years.");
+S2(12,"Under the bonus framework effective October 1, 2024, consider the following:","Bonus shares become tradable on T+1.","The deemed date of allotment is T+2.","Neither","Deemed allotment T+1; trading T+2.");
+S2(12,"Regarding the DN database, consider the following:","On issue of a duplicate, the folio number changes.","On demat, the DNs remain in the investor's folio.","Neither","Only the certificate number changes on a duplicate; on demat DNs move to the depository's folio.");
+S2(6,"Regarding the SEBI (RTA) Regulations, 2025, consider the following:","The registration fee is Rs. 20,000.","The minimum net worth is Rs. 1 crore.","Neither","Registration fee Rs. 6 lakh; net worth Rs. 50 lakh.");
+S2(6,"Regarding the IEPF, consider the following:","Dividends unclaimed for 5 years are transferred to the IEPF.","A change of Nodal Officer is communicated within 30 days.","Neither","7 years; 7 days.");
+S2(13,"Regarding general meetings, consider the following:","Proxy forms must reach the company at least 24 hours before the meeting.","Remote e-voting closes at midnight on the day of the AGM.","Neither","48 hours; 5 p.m. on the day before the AGM.");
+S2(13,"Regarding transmission timelines, consider the following:","Transmission of demat securities is completed within 21 days.","Transmission of physical securities is completed within 7 days.","Neither","Demat: 7 days; physical: 21 days.");
+S2(9,"Regarding anchor investors, consider the following:","The minimum application is Rs. 2 crore.","The entire allotment is locked in for 30 days.","Neither","Rs. 10 crore; 50 percent for 30 days and 50 percent for 90 days.");
+S2(10,"Regarding the T+3 framework, consider the following:","Trading commences on T+6.","UPI mandates are unblocked by T+3.","Neither","Trading on T+3; unblocking by T+2.");
+S2(11,"Regarding Depository Participants, consider the following:","DPs are appointed directly by SEBI without involvement of the depository.","DPs send transaction statements to clients at least once a year.","Neither","Appointed by depositories with SEBI approval; statements at least monthly.");
+S2(7,"Regarding buyback limits, consider the following:","The Board alone can approve a buyback of up to 25 percent.","An open market buyback can be up to 25 percent.","Neither","Board up to 10 percent; open market below 15 percent.");
+
 </script>
 <script>
 const CH={1:"Introduction to Securities",2:"Characteristics of Equity Shares",3:"Characteristics of Debt Securities",4:"Characteristics of Other Securities",5:"Basics of Mutual Funds",6:"SEBI: Role and Regulations",7:"Public Offer of Securities",8:"Allotment other than Public Offers",9:"Processes: Public Offering of Shares",10:"Roles and Responsibilities in a Public Issue",11:"Depository Services",12:"Processes related to Depositories",13:"Investor Interface with the R&T Agent",14:"Secondary Market Transactions",15:"Client Servicing"};
 const W={1:3,2:6,3:6,4:3,5:3,6:14,7:5,8:2,9:8,10:6,11:6,12:16,13:10,14:5,15:7};
-const KEY="nism2a-mocks-v2";
+const KEY="nism2a-mocks-v2";const BANKV=3;
 try{localStorage.removeItem("nism2a-mocks-v1")}catch(e){}
 function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function shuffle(a,r){for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1157,19 +2134,23 @@ const SETS=[
 ];
 SETS.forEach((s,si)=>{
   s.si=si;s.mix=split(s.n);s.pass=Math.ceil(s.n/2);s.time=s.mins*60;
-  s.pools={};for(const c in W){const ids=BANK.filter(b=>b.ch==c).map(b=>b.id);s.pools[c]=shuffle(ids,rng(s.key==="F"?1000+ +c:1000*(si+2)+ +c))}
+  s.pools={};s.hpools={};for(const c in W){
+    s.pools[c]=shuffle(BANK.filter(b=>b.ch==c&&!b.hard).map(b=>b.id),rng(1000*(si+2)+ +c));
+    s.hpools[c]=shuffle(BANK.filter(b=>b.ch==c&&b.hard).map(b=>b.id),rng(7000*(si+2)+ +c))}
 });
 const SET=k=>SETS.find(s=>s.key===k);
 const PIN=/^(All the options given|All of the above|None of the above)$/;
 function buildMock(sk,m){
   const s=SET(sk),F=sk==="F";let ids=[];
-  for(const c in W){const p=s.pools[c],k=s.mix[c],n=p.length,st=(m*k)%n;for(let i=0;i<k;i++)ids.push(p[(st+i)%n])}
+  for(const c in W){const k=s.mix[c],hp=s.hpools[c],np=s.pools[c];const hk=Math.min(Math.ceil(k*0.55),hp.length),nk=k-hk;
+    for(let i=0;i<hk;i++)ids.push(hp[(m*hk+i)%hp.length]);for(let i=0;i<nk;i++)ids.push(np[(m*nk+i)%np.length])}
   shuffle(ids,rng(F?5000+m:5000+s.si*100+m));
   return ids.map(id=>{
     const b=BANK[id];let opts;
-    if(b.a==="True"||b.a==="False"){opts=["True","False"]}
+    if(b.fixed){opts=b.fixed.slice()}
+    else if(b.a==="True"||b.a==="False"){opts=["True","False"]}
     else{opts=shuffle([b.a,...b.w],rng((F?m:(s.si*1000+m))*7919+id+1));const p=opts.filter(o=>PIN.test(o));opts=opts.filter(o=>!PIN.test(o)).concat(p)}
-    return {id,ch:b.ch,q:b.q,opts,correct:opts.indexOf(b.a),e:b.e};
+    return {id,ch:b.ch,q:b.q,opts,correct:opts.indexOf(b.a),e:b.e,hard:!!b.hard};
   });
 }
 // storage (per-viewer convenience only)
@@ -1217,7 +2198,7 @@ function home(){
   '<div class="facts"><div><b>100</b><span>Q in real exam</span></div><div><b>120</b><span>minutes</span></div><div><b>50%</b><span>to pass</span></div><div><b>0</b><span>negative marks</span></div></div></div>'+
   '<nav class="jump">'+SETS.map(s=>'<a href="#set-'+s.key+'"><b>'+s.count+' x '+s.n+'</b> '+s.plural+'</a>').join("")+'<span class="muted">'+attempts+'/50 attempted · '+passedAll+' passed</span><button class="btn ghost" id="resetall" style="font-size:13px;padding:6px 12px">Reset all tests</button></nav>'+
   sections+
-  '<p class="note">Questions come from a bank of '+BANK.length+' questions written from the workbook text and its sample questions. Within a set, each mock is a different mix and no question repeats inside a mock. Across the 50 mocks a question appears about 5 times, with question and option order changed. Time limits use the real exam pace of 1.2 minutes per question. The gold line on each bar marks the 50% pass mark. Progress and scores are saved only in this browser on this device.</p>'+
+  '<p class="note">Questions come from a bank of '+BANK.length+' questions written from the workbook text, in formal exam-style English. About 55% of every mock is advanced: statement I/II, assertion-reason, NOT/INCORRECT and scenario or calculation questions. Within a set, each mock is a different mix and no question repeats inside a mock. Time limits use the real exam pace of 1.2 minutes per question. The gold line on each bar marks the 50% pass mark. Progress and scores are saved only in this browser on this device.</p>'+
   '</div>';
   app.querySelectorAll('.card').forEach(b=>b.onclick=()=>intro(b.dataset.s,+b.dataset.m));
   document.getElementById('resetall').onclick=()=>{
@@ -1234,9 +2215,10 @@ function home(){
 /* ---------- INTRO ---------- */
 function intro(sk,m,mode){
   mode=mode||"exam";const s=SET(sk),k=id(sk,m);
-  const p=DB.progress[k],r=DB.results[k]||[];
+  if(DB.progress[k]&&DB.progress[k].v!==BANKV){delete DB.progress[k];save()}
+  const p=DB.progress[k],r=DB.results[k]||[];const lastOk=r.length&&r[r.length-1].v===BANKV;
   let mix="";for(const c in W)if(s.mix[c])mix+='<tr><td>Ch '+c+': '+esc(CH[c])+'</td><td>'+s.mix[c]+'</td></tr>';
-  let hist="";if(r.length){hist='<div class="history"><b>Previous attempts</b><ul>'+r.slice(-5).reverse().map(x=>'<li class="mono">'+x.date+' · '+x.mode+' · '+x.score+'/'+s.n+' · '+fmt(x.used)+'</li>').join("")+'</ul><button class="btn ghost" id="lastrev">Review last attempt</button></div>'}
+  let hist="";if(r.length){hist='<div class="history"><b>Previous attempts</b><ul>'+r.slice(-5).reverse().map(x=>'<li class="mono">'+x.date+' · '+x.mode+' · '+x.score+'/'+s.n+' · '+fmt(x.used)+'</li>').join("")+'</ul>'+(lastOk?'<button class="btn ghost" id="lastrev">Review last attempt</button>':'<p class="muted" style="font-size:13px">Questions were rewritten after your last attempt, so it cannot be reviewed.</p>')+'</div>'}
   app.innerHTML='<div class="wrap"><button class="btn ghost" id="back">&larr; All mocks</button><div class="intro">'+
   '<div class="eyebrow">'+s.n+' questions · '+s.mins+' minutes · pass '+s.pass+'</div><h2>'+title(sk,m)+'</h2>'+
   (p?'<p>You have this mock in progress: <b class="mono">'+p.answers.filter(x=>x!==null).length+'/'+s.n+'</b> answered'+(p.mode==="exam"?', <b class="mono">'+fmt(p.remaining)+'</b> left':'')+'.</p><div class="row"><button class="btn primary" id="resume">Resume</button><button class="btn" id="discard">Discard and start over</button></div>':
@@ -1256,7 +2238,7 @@ function intro(sk,m,mode){
 /* ---------- EXAM ---------- */
 function start(sk,m,mode){const s=SET(sk);S={sk,m,mode,qs:buildMock(sk,m),answers:Array(s.n).fill(null),marked:[],cur:0,remaining:s.time,used:0};persist();exam()}
 function resume(sk,m){const p=DB.progress[id(sk,m)];S={sk,m,mode:p.mode,qs:buildMock(sk,m),answers:p.answers,marked:p.marked||[],cur:p.cur||0,remaining:p.remaining,used:p.used||0};exam()}
-function persist(){if(!S)return;DB.progress[id(S.sk,S.m)]={mode:S.mode,answers:S.answers,marked:S.marked,cur:S.cur,remaining:S.remaining,used:S.used};save()}
+function persist(){if(!S)return;DB.progress[id(S.sk,S.m)]={v:BANKV,mode:S.mode,answers:S.answers,marked:S.marked,cur:S.cur,remaining:S.remaining,used:S.used};save()}
 const N=()=>S.qs.length;
 
 function exam(){
@@ -1324,7 +2306,7 @@ function submit(auto){
   stopTick();
   const score=S.qs.reduce((s,q,i)=>s+(S.answers[i]===q.correct?1:0),0);
   const d=new Date();const date=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes());
-  const k=id(S.sk,S.m);(DB.results[k]=DB.results[k]||[]).push({score,date,used:S.used,mode:S.mode==="exam"?"Exam":"Practice",answers:S.answers.slice(),auto:!!auto});
+  const k=id(S.sk,S.m);(DB.results[k]=DB.results[k]||[]).push({v:BANKV,score,date,used:S.used,mode:S.mode==="exam"?"Exam":"Practice",answers:S.answers.slice(),auto:!!auto});
   delete DB.progress[k];save();
   result(false,auto);
 }
@@ -1367,6 +2349,3 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('visibilitychange',()=>{if(document.hidden)persist()});
 home();
 </script>
-
-</body>
-</html>
